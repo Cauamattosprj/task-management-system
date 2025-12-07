@@ -1,8 +1,8 @@
 import { Body, Controller, Inject, Post } from '@nestjs/common';
 import { UserLoginDTO } from '@dtos/login.dto';
 import { UserRegisterDTO } from '@dtos/register.dto';
-import { AUTH_SERVICE } from 'src/app.module';
 import { ClientProxy } from '@nestjs/microservices';
+import { AUTH_SERVICE } from 'src/constants';
 
 @Controller('auth')
 export class AuthController {
