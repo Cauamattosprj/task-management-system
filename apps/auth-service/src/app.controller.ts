@@ -1,20 +1,20 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller } from '@nestjs/common';
 import { AppService } from './app.service';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import { LoginDTO } from '../../../packages/types/dto/user/login.dto';
-import { UserDTO } from '../../../packages/types/dto/user/user.dto';
+import { UserLoginDTO } from '../../../packages/types/dto/user/login.dto';
+import { UserRegisterDTO } from '../../../packages/types/dto/user/register.dto';
 
 @Controller()
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
   @MessagePattern('auth-login')
-  login(@Payload() loginDto: LoginDTO) {
+  login(@Payload() loginDto: UserLoginDTO) {
     return this.appService.login(loginDto);
   }
 
   @MessagePattern('auth-register')
-  registerUser(registerDTO: RegisterDTO) {
-    return this.appService.register(userDTO);
+  registerUser(registerDTO: UserRegisterDTO) {
+    return this.appService.register(registerDTO);
   }
 }

@@ -1,4 +1,5 @@
 import {
+  ConflictException,
   Injectable,
   Logger,
   NotFoundException,
@@ -7,35 +8,45 @@ import {
 import { UserLoginDTO } from '../../../packages/types/dto/user/login.dto';
 import { UserRegisterDTO } from '../../../packages/types/dto/user/register.dto';
 import { JwtService } from '@nestjs/jwt';
+import { User } from './users/user.entity';
+import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class AppService {
   constructor(
-    private readonly userRepository: IUserRepository,
     private readonly jwtService: JwtService,
+
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
   ) {}
 
-  register(registerDto: UserRegisterDTO) {
-    existingUser = this.userRepository.findByEmail(userDTO.email);
+  async register(registerDto: UserRegisterDTO) {
+    const existingUser = await this.userRepository.findOneBy({
+      email: registerDto.email,
+    });
     if (existingUser) {
       throw new ConflictException('User already registered');
     }
 
-    registeredUser = await this.userRepository.save(userDTO);
+    const registeredUser = await this.userRepository.save(registerDto);
 
     const token = this.jwtService.sign({
-      sub: this.registerUser.id,
-      login: this.registerUser.email,
+      sub: registeredUser.id,
+      login: registeredUser.email,
+      role: registeredUser.role,
     });
 
     return {
-      user: this.registerUser,
+      user: registeredUser,
       token,
     };
   }
 
-  login(userLoginDto: UserLoginDTO) {
-    const existingUser = this.userRepository.findByEmail(userLoginDto.email);
+  async login(userLoginDto: UserLoginDTO) {
+    const existingUser = await this.userRepository.findOneBy({
+      email: userLoginDto.email,
+    });
 
     if (!existingUser) {
       Logger.log(
@@ -45,13 +56,11 @@ export class AppService {
     }
 
     if (existingUser.password == userLoginDto.password) {
-      const payload = {
+      const token = this.jwtService.sign({
         sub: existingUser.id,
-        username: existingUser.username,
+        login: existingUser.email,
         role: existingUser.role,
-      };
-
-      const token = this.jwtService.sign(payload);
+      });
 
       return token;
     }
