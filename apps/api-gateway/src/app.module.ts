@@ -5,7 +5,6 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
 import { AuthController } from './auth/auth.controller';
 import { AUTH_SERVICE } from './constants';
 
-
 @Module({
   imports: [
     ClientsModule.register([
@@ -13,7 +12,7 @@ import { AUTH_SERVICE } from './constants';
         name: AUTH_SERVICE,
         transport: Transport.RMQ,
         options: {
-          urls: ['amqp://localhost:3002'],
+          urls: ['amqp://admin:admin@localhost:5672'],
           queue: 'auth_queue',
           queueOptions: {
             durable: true,
