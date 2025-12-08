@@ -25,4 +25,9 @@ export class AppController {
       if (error instanceof RpcException) throw error;
     }
   }
+
+  @MessagePattern('auth-validate-token')
+  async validateToken(@Payload() token: string) {
+    return this.appService.validateToken(token);
+  }
 }

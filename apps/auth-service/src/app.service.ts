@@ -1,13 +1,7 @@
-import {
-  ConflictException,
-  Injectable,
-  Logger,
-  NotFoundException,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { UserLoginDTO } from '../../../packages/types/dto/user/login.dto';
 import { UserRegisterDTO } from '../../../packages/types/dto/user/register.dto';
-import { JwtService } from '@nestjs/jwt';
+import { JsonWebTokenError, JwtService } from '@nestjs/jwt';
 import { User } from './users/user.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -44,7 +38,7 @@ export class AppService {
 
     return {
       user: registeredUser,
-      token,
+      token: token,
     };
   }
 
@@ -58,7 +52,7 @@ export class AppService {
         `User with email ${userLoginDto.email} do not exist and have tried to login`,
       );
       throw new RpcException({
-        statusCode: 404,
+        statusCode: 401,
         message: `User with email ${userLoginDto.email} do not exist and have tried to login`,
         error: 'Not found',
       });
@@ -71,13 +65,19 @@ export class AppService {
         role: existingUser.role,
       });
 
-      return token;
+      return { token: token };
     }
 
     throw new UnauthorizedException('Invalid credentials');
   }
 
-  getHello(): string {
-    return 'Hello World!';
+  async validateToken(token: string) {
+    try {
+      const decoded: { sub: string; role: string; userId: string } =
+        await this.jwtService.verify(token);
+      return { valid: true, userId: decoded.sub, role: decoded.role };
+    } catch (error: any) {
+      return { valid: false, userId: null, role: null };
+    }
   }
 }
