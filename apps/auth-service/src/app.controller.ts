@@ -1,6 +1,6 @@
 import { Controller } from '@nestjs/common';
 import { AppService } from './app.service';
-import { MessagePattern, Payload } from '@nestjs/microservices';
+import { MessagePattern, Payload, RpcException } from '@nestjs/microservices';
 import { UserLoginDTO } from '../../../packages/types/dto/user/login.dto';
 import { UserRegisterDTO } from '../../../packages/types/dto/user/register.dto';
 
@@ -10,11 +10,19 @@ export class AppController {
 
   @MessagePattern('auth-login')
   login(@Payload() loginDto: UserLoginDTO) {
-    return this.appService.login(loginDto);
+    try {
+      return this.appService.login(loginDto);
+    } catch (error) {
+      if (error instanceof RpcException) throw error;
+    }
   }
 
   @MessagePattern('auth-register')
   registerUser(registerDTO: UserRegisterDTO) {
-    return this.appService.register(registerDTO);
+    try {
+      return this.appService.register(registerDTO);
+    } catch (error) {
+      if (error instanceof RpcException) throw error;
+    }
   }
 }

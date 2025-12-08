@@ -11,6 +11,7 @@ import { JwtService } from '@nestjs/jwt';
 import { User } from './users/user.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
+import { RpcException } from '@nestjs/microservices';
 
 @Injectable()
 export class AppService {
@@ -26,7 +27,11 @@ export class AppService {
       email: registerDto.email,
     });
     if (existingUser) {
-      throw new ConflictException('User already registered');
+      throw new RpcException({
+        statusCode: 409,
+        message: 'User already exists',
+        error: 'Conflict',
+      });
     }
 
     const registeredUser = await this.userRepository.save(registerDto);
@@ -52,7 +57,11 @@ export class AppService {
       Logger.log(
         `User with email ${userLoginDto.email} do not exist and have tried to login`,
       );
-      throw new NotFoundException('This user is not finded on db.');
+      throw new RpcException({
+        statusCode: 404,
+        message: `User with email ${userLoginDto.email} do not exist and have tried to login`,
+        error: 'Not found',
+      });
     }
 
     if (existingUser.password == userLoginDto.password) {
