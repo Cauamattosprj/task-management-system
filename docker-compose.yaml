@@ -7,7 +7,7 @@ services:
       dockerfile: ./apps/web/Dockerfile
       target: development
     ports:
-      - '3000:3000'
+      - "3000:3000"
     environment:
       - NODE_ENV=development
     networks:
@@ -22,7 +22,7 @@ services:
       dockerfile: ./apps/api-gateway/Dockerfile
       target: development
     ports:
-      - '3001:3001'
+      - "3001:3001"
     volumes:
       - .:/app
       - ./packages:/app/packages
@@ -32,8 +32,6 @@ services:
       - NODE_ENV=development
       - PORT=3001
     depends_on:
-      db:
-        condition: service_started
       rabbitmq:
         condition: service_started
     networks:
@@ -47,7 +45,7 @@ services:
       dockerfile: ./apps/auth-service/Dockerfile
       target: development
     ports:
-      - '3002:3002'
+      - "3002:3002"
     volumes:
       - .:/app
       - ./packages:/app/packages
@@ -57,7 +55,7 @@ services:
       - NODE_ENV=development
       - PORT=3002
     depends_on:
-      db:
+      db-auth-service:
         condition: service_started
       rabbitmq:
         condition: service_started
@@ -72,7 +70,7 @@ services:
       dockerfile: ./apps/tasks-service/Dockerfile
       target: development
     ports:
-      - '3003:3003'
+      - "3003:3003"
     volumes:
       - .:/app
       - ./packages:/app/packages
@@ -82,7 +80,7 @@ services:
       - NODE_ENV=development
       - PORT=3003
     depends_on:
-      db:
+      db-tasks-service:
         condition: service_started
       rabbitmq:
         condition: service_started
@@ -97,7 +95,7 @@ services:
       dockerfile: ./apps/notifications-service/Dockerfile
       target: development
     ports:
-      - '3004:3004'
+      - "3004:3004"
     volumes:
       - .:/app
       - ./packages:/app/packages
@@ -107,29 +105,111 @@ services:
       - NODE_ENV=development
       - PORT=3004
     depends_on:
-      db:
+      db-notifications-service:
         condition: service_started
       rabbitmq:
         condition: service_started
     networks:
       - challenge-network
 
-  # Postgres Database
-  db:
-    image: postgres:17.5-alpine3.21
-    container_name: db
-    attach: false
+  # Users Service
+  users-service:
+    container_name: users-service
+    build:
+      context: .
+      dockerfile: ./apps/users-service/Dockerfile
+      target: development
     ports:
-      - '5432:5432'
+      - "3005:3005"
+    volumes:
+      - .:/app
+      - ./packages:/app/packages
+      - /app/node_modules
+      - /app/apps/tasks-service/node_modules
+    environment:
+      - NODE_ENV=development
+      - PORT=3005
+    depends_on:
+      db-tasks-service:
+        condition: service_started
+      rabbitmq:
+        condition: service_started
+    networks:
+      - challenge-network
+
+  # Postgres Databases
+  db-auth-service:
+    image: postgres:17.5-alpine3.21
+    container_name: db-auth-service
+    ports:
+      - "5432:5432"
     networks:
       - challenge-network
     restart: always
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - auth_postgres_data:/var/lib/postgresql/data
     environment:
       POSTGRES_PASSWORD: password
       POSTGRES_USER: postgres
-      POSTGRES_DB: challenge_db
+      POSTGRES_DB: auth_db
+
+  db-users-service:
+    image: postgres:17.5-alpine3.21
+    container_name: db-users-service
+    ports:
+      - "5433:5432"
+    networks:
+      - challenge-network
+    restart: always
+    volumes:
+      - users_postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: password
+      POSTGRES_USER: postgres
+      POSTGRES_DB: users_db
+
+  db-notifications-service:
+    image: postgres:17.5-alpine3.21
+    container_name: db-notifications-service
+    ports:
+      - "5434:5432"
+    networks:
+      - challenge-network
+    restart: always
+    volumes:
+      - notifications_postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: password
+      POSTGRES_USER: postgres
+      POSTGRES_DB: notifications_db
+
+  db-tasks-service:
+    image: postgres:17.5-alpine3.21
+    container_name: db-tasks-service
+    ports:
+      - "5435:5432"
+    networks:
+      - challenge-network
+    restart: always
+    volumes:
+      - tasks_postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: password
+      POSTGRES_USER: postgres
+      POSTGRES_DB: tasks_db
+
+  # PGAdmin
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    restart: always
+    ports:
+      - "5050:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    networks:
+      - challenge-network
 
   # RabbitMQ
   rabbitmq:
@@ -138,20 +218,27 @@ services:
     attach: false
     restart: always
     ports:
-      - '5672:5672'
-      - '15672:15672'
+      - "5672:5672"
+      - "15672:15672"
     networks:
       - challenge-network
     environment:
       RABBITMQ_DEFAULT_USER: admin
       RABBITMQ_DEFAULT_PASS: admin
-    volumes: ['rabbitmq_data:/var/lib/rabbitmq']
+    volumes: ["rabbitmq_data:/var/lib/rabbitmq"]
 
 volumes:
-  postgres_data:
-    driver: local
   rabbitmq_data:
     driver: local
+  auth_postgres_data:
+    driver: local
+  users_postgres_data:
+    driver: local
+  notifications_postgres_data:
+    driver: local
+  tasks_postgres_data:
+    driver: local
+
 
 networks:
   challenge-network:
