@@ -10,13 +10,14 @@ async function bootstrap() {
       transport: Transport.RMQ,
       options: {
         urls: [process.env.RABBITMQ_URL as string],
-        queue: process.env.USER_QUEUE as string,
+        queue: process.env.USERS_QUEUE as string,
         queueOptions: {
           durable: true,
         },
       },
     },
   );
+  console.log([process.env.RABBITMQ_URL, process.env.USERS_QUEUE]);
   await app.listen();
 }
 
