@@ -14,13 +14,13 @@ import { UserService } from './users/user.service';
       isGlobal: true,
       envFilePath: '.env',
     }),
-    TypeOrmModule.forFeature([User]),
     JwtModule.register({
       secret: process.env.JWT_SECRET,
       signOptions: {
         expiresIn: '15m',
       },
     }),
+    TypeOrmModule.forFeature([User]),
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: process.env.POSTGRES_HOST || 'localhost',
@@ -29,7 +29,6 @@ import { UserService } from './users/user.service';
       password: process.env.POSTGRES_PASSWORD || 'password',
       database: process.env.POSTGRES_DB || 'auth_service',
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
-      migrations: [__dirname + '/migrations/*.ts'],
       synchronize: process.env.NODE_ENV !== 'production',
       logging: true,
     }),
