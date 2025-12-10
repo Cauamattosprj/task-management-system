@@ -17,6 +17,7 @@ async function bootstrap() {
       },
     },
   );
+  console.log([process.env.RABBITMQ_URL, process.env.AUTH_QUEUE])
   await app.listen();
 }
 

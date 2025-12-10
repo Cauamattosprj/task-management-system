@@ -9,16 +9,17 @@ export class AppController {
   constructor(private readonly appService: AppService) {}
 
   @MessagePattern('auth-login')
-  login(@Payload() loginDto: UserLoginDTO) {
+  async login(@Payload() loginDto: UserLoginDTO) {
     try {
-      return this.appService.login(loginDto);
+      console.log('auth-login recebeu a mensagem: ', loginDto);
+      return await this.appService.login(loginDto);
     } catch (error) {
       if (error instanceof RpcException) throw error;
     }
   }
 
   @MessagePattern('auth-register')
-  registerUser(registerDTO: UserRegisterDTO) {
+  registerUser(@Payload() registerDTO: UserRegisterDTO) {
     try {
       return this.appService.register(registerDTO);
     } catch (error) {

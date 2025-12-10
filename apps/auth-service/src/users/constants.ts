@@ -1,2 +1,0 @@
-export const USER_REPOSITORY = 'USER_REPOSITORY';
-export const USER_DATA_SOURCE = 'USER_DATA_SOURCE';

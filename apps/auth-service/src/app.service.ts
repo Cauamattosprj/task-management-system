@@ -1,25 +1,33 @@
-import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
-import { UserLoginDTO } from '../../../packages/types/dto/user/login.dto';
-import { UserRegisterDTO } from '../../../packages/types/dto/user/register.dto';
-import { JsonWebTokenError, JwtService } from '@nestjs/jwt';
-import { User } from './users/user.entity';
-import { Repository } from 'typeorm';
-import { InjectRepository } from '@nestjs/typeorm';
-import { RpcException } from '@nestjs/microservices';
+import {
+  Inject,
+  Injectable,
+  InjectionToken,
+  Logger,
+  UnauthorizedException,
+} from '@nestjs/common';
+import { UserLoginDTO } from '@dto/user/login.dto';
+import { UserDTO } from '@dto/user/user.dto';
+import { UserRegisterDTO } from '@dto/user/register.dto';
+import { JwtService } from '@nestjs/jwt';
+import { ClientProxy, Payload, RpcException } from '@nestjs/microservices';
+import { USERS_SERVICE } from '@constants/inject-tokens';
+import { firstValueFrom } from 'rxjs';
 
 @Injectable()
 export class AppService {
   constructor(
     private readonly jwtService: JwtService,
-
-    @InjectRepository(User)
-    private readonly userRepository: Repository<User>,
+    @Inject(USERS_SERVICE as InjectionToken)
+    private readonly userClient: ClientProxy,
   ) {}
 
   async register(registerDto: UserRegisterDTO) {
-    const existingUser = await this.userRepository.findOneBy({
-      email: registerDto.email,
-    });
+    const existingUser = await firstValueFrom(
+      this.userClient.send('user-get-by-email', registerDto.email),
+    );
+
+    console.log('Existing user: ', existingUser);
+
     if (existingUser) {
       throw new RpcException({
         statusCode: 409,
@@ -28,7 +36,9 @@ export class AppService {
       });
     }
 
-    const registeredUser = await this.userRepository.save(registerDto);
+    const registeredUser: UserDTO = await firstValueFrom<UserDTO>(
+      this.userClient.send('user-register', registerDto),
+    );
 
     const token = this.jwtService.sign({
       sub: registeredUser.id,
@@ -43,9 +53,10 @@ export class AppService {
   }
 
   async login(userLoginDto: UserLoginDTO) {
-    const existingUser = await this.userRepository.findOneBy({
-      email: userLoginDto.email,
-    });
+    console.log('Service: Login: ', userLoginDto);
+    const existingUser: UserDTO = await firstValueFrom(
+      this.userClient.send('user-get-by-email', userLoginDto.email),
+    );
 
     if (!existingUser) {
       Logger.log(
