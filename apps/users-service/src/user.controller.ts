@@ -9,13 +9,16 @@ export class UserController {
 
   @MessagePattern('user-get-by-email')
   async getUserByEmail(@Payload() email: string) {
-    console.log('CHEGOU USER-GET-BY-EMAIL');
     return await this.userService.getUserByEmail(email);
+  }
+
+  @MessagePattern('user-get-by-id')
+  async getUserById(@Payload() userId: string) {
+    return await this.userService.getUserById(userId);
   }
 
   @MessagePattern('user-register')
   async registerUser(@Payload() userRegisterDTO: UserRegisterDTO) {
-    console.log('CHEGOU USER REGISTER');
     return await this.userService.registerUser(userRegisterDTO);
   }
 }

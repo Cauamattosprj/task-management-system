@@ -13,6 +13,18 @@ export class UserService {
     private readonly userRepository: Repository<User>,
   ) {}
 
+  async getUserById(userId: string) {
+    try {
+      const user = await this.userRepository.findOneBy({ id: userId });
+      if (!user) {
+        Logger.log('User with this id not found', userId);
+      }
+      return user;
+    } catch (error) {
+      Logger.error(error);
+    }
+  }
+
   async registerUser(userRegisterDTO: UserRegisterDTO) {
     Logger.log('Registering user', userRegisterDTO);
     try {
