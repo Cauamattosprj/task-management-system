@@ -13,7 +13,8 @@ async function bootstrap() {
     }),
   );
 
-  await app.listen(process.env.PORT ?? 3000);
+  console.log('running on port', process.env.PORT);
+  await app.listen(Number.parseInt(process.env.PORT as string));
 }
 
 bootstrap();

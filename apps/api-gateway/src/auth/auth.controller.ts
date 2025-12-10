@@ -1,4 +1,11 @@
-import { Body, Controller, HttpCode, HttpStatus, Inject, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  HttpCode,
+  HttpStatus,
+  Inject,
+  Post,
+} from '@nestjs/common';
 import { UserLoginDTO } from '@dtos/login.dto';
 import { UserRegisterDTO } from '@dtos/register.dto';
 import { ClientProxy } from '@nestjs/microservices';

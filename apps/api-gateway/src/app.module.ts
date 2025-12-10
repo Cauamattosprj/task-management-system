@@ -3,7 +3,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { AuthController } from './auth/auth.controller';
-import { AUTH_SERVICE } from './constants';
+import { AUTH_SERVICE, USERS_SERVICE } from './constants';
 import { UserController } from './user/user.controller';
 import { ConfigModule } from '@nestjs/config';
 
@@ -18,11 +18,19 @@ import { ConfigModule } from '@nestjs/config';
         name: AUTH_SERVICE,
         transport: Transport.RMQ,
         options: {
-          urls: [
-            (process.env.RABBITMQ_URL as string) ||
-              'amqp://admin:admin@localhost:5672',
-          ],
-          queue: (process.env.AUTH_QUEUE as string) || 'auth_queue',
+          urls: [process.env.RABBITMQ_URL as string],
+          queue: process.env.AUTH_QUEUE as string,
+          queueOptions: {
+            durable: true,
+          },
+        },
+      },
+      {
+        name: USERS_SERVICE,
+        transport: Transport.RMQ,
+        options: {
+          urls: [process.env.RABBITMQ_URL as string],
+          queue: process.env.USERS_QUEUE as string,
           queueOptions: {
             durable: true,
           },
