@@ -8,12 +8,22 @@ import { UserController } from './user/user.controller';
 import { ConfigModule } from '@nestjs/config';
 import { TasksController } from './tasks/tasks.controller';
 import { TasksService } from './tasks/tasks.service';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { UserService } from './user/user.service';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',
+    }),
+    ThrottlerModule.forRoot({
+      throttlers: [
+        {
+          ttl: 60000,
+          limit: 10,
+        },
+      ],
     }),
     ClientsModule.register([
       {
@@ -52,6 +62,14 @@ import { TasksService } from './tasks/tasks.service';
     ]),
   ],
   controllers: [AppController, AuthController, UserController, TasksController],
-  providers: [AppService, TasksService],
+  providers: [
+    AppService,
+    TasksService,
+    UserService,
+    {
+      provide: 'THROTTLER_GUARD',
+      useClass: ThrottlerGuard,
+    },
+  ],
 })
 export class AppModule {}

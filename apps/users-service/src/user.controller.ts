@@ -21,4 +21,9 @@ export class UserController {
   async registerUser(@Payload() userRegisterDTO: UserRegisterDTO) {
     return await this.userService.registerUser(userRegisterDTO);
   }
+
+  @MessagePattern('user.auth.get.byEmail')
+  async getUserByEmailForAuth(@Payload() email: string) {
+    return await this.userService.getUserByEmailForAuth(email);
+  }
 }

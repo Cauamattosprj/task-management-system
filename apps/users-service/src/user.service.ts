@@ -2,9 +2,9 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './user.entity';
 import { Repository } from 'typeorm';
-import { RpcException } from '@nestjs/microservices';
 import { UserRegisterDTO } from '@dto/user/register.dto';
 import { UserDTO } from '@dto/user/user.dto';
+import { instanceToPlain } from 'class-transformer';
 
 @Injectable()
 export class UserService {
@@ -30,7 +30,9 @@ export class UserService {
     try {
       const registeredUser: UserDTO =
         await this.userRepository.save(userRegisterDTO);
-      Logger.log('User registered', registeredUser);
+
+      Logger.log('User registered', registeredUser.id);
+
       return registeredUser;
     } catch (error) {
       Logger.error(error);
@@ -40,6 +42,24 @@ export class UserService {
   async getUserByEmail(userEmail: string) {
     console.log('GET USER METODO: ', userEmail);
     const user = await this.userRepository.findOneBy({ email: userEmail });
+
+    if (!user) {
+      Logger.log(`Usuário não encontrado - email: `, userEmail);
+      return null;
+    }
+
+    const { password, ...userWithoutPassword } = user;
+
+    Logger.log(`Usuário encontrado, usuário: `, userWithoutPassword);
+    return userWithoutPassword;
+  }
+
+  async getUserByEmailForAuth(userEmail: string) {
+    console.log('GET USER METODO: ', userEmail);
+    const user = await this.userRepository.findOne({
+      where: { email: userEmail },
+      select: ['email', 'password', 'id', 'role'],
+    });
 
     if (!user) {
       Logger.log(`Usuário não encontrado - email: `, userEmail);

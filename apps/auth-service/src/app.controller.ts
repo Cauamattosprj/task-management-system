@@ -11,7 +11,7 @@ export class AppController {
   @MessagePattern('auth-login')
   async login(@Payload() loginDto: UserLoginDTO) {
     try {
-      console.log('auth-login recebeu a mensagem: ', loginDto);
+      console.log('Login', loginDto);
       return await this.appService.login(loginDto);
     } catch (error) {
       if (error instanceof RpcException) throw error;

@@ -7,11 +7,14 @@ import {
 } from '@nestjs/common';
 import { UserLoginDTO } from '@dto/user/login.dto';
 import { UserDTO } from '@dto/user/user.dto';
+import { PublicUserDTO } from '@dto/user/public-user.dto';
 import { UserRegisterDTO } from '@dto/user/register.dto';
 import { JwtService } from '@nestjs/jwt';
 import { ClientProxy, Payload, RpcException } from '@nestjs/microservices';
 import { USERS_SERVICE } from '@constants/inject-tokens';
 import { firstValueFrom } from 'rxjs';
+import { hash, verify } from 'argon2';
+import { instanceToPlain, plainToInstance } from 'class-transformer';
 
 @Injectable()
 export class AppService {
@@ -23,12 +26,16 @@ export class AppService {
 
   async register(registerDto: UserRegisterDTO) {
     const existingUser = await firstValueFrom(
-      this.userClient.send('user-get-by-email', registerDto.email),
+      this.userClient.send<UserDTO | null>(
+        'user-get-by-email',
+        registerDto.email,
+      ),
     );
 
     console.log('Existing user: ', existingUser);
 
     if (existingUser) {
+      Logger.log('service.register user not found', existingUser);
       throw new RpcException({
         statusCode: 409,
         message: 'User already exists',
@@ -36,8 +43,19 @@ export class AppService {
       });
     }
 
-    const registeredUser: UserDTO = await firstValueFrom<UserDTO>(
-      this.userClient.send('user-register', registerDto),
+    const passwordHash = await hash(registerDto.password, {
+      type: 2,
+      memoryCost: 64 * 1024,
+      timeCost: 3,
+      parallelism: 1,
+      salt: Buffer.from(crypto.randomUUID()),
+    });
+
+    const registeredUser = await firstValueFrom<UserDTO>(
+      this.userClient.send('user-register', {
+        ...registerDto,
+        password: passwordHash,
+      }),
     );
 
     const token = this.jwtService.sign({
@@ -46,8 +64,12 @@ export class AppService {
       role: registeredUser.role,
     });
 
+    const safeUser = plainToInstance(PublicUserDTO, registeredUser, {
+      excludeExtraneousValues: true,
+    });
+
     return {
-      user: registeredUser,
+      user: safeUser,
       token: token,
     };
   }
@@ -55,8 +77,10 @@ export class AppService {
   async login(userLoginDto: UserLoginDTO) {
     console.log('Service: Login: ', userLoginDto);
     const existingUser: UserDTO = await firstValueFrom(
-      this.userClient.send('user-get-by-email', userLoginDto.email),
+      this.userClient.send('user.auth.get.byEmail', userLoginDto.email),
     );
+
+    console.log('user: ', existingUser);
 
     if (!existingUser) {
       Logger.log(
@@ -69,17 +93,32 @@ export class AppService {
       });
     }
 
-    if (existingUser.password == userLoginDto.password) {
-      const token = this.jwtService.sign({
-        sub: existingUser.id,
-        login: existingUser.email,
-        role: existingUser.role,
+    try {
+      const validPassword = await verify(
+        existingUser.password,
+        userLoginDto.password,
+      );
+
+      if (validPassword) {
+        const token = this.jwtService.sign({
+          sub: existingUser.id,
+          login: existingUser.email,
+          role: existingUser.role,
+        });
+        return { token: token };
+      }
+
+      throw new RpcException({
+        statusCode: 401,
+        message: 'Invalid password',
       });
-
-      return { token: token };
+    } catch (e) {
+      Logger.error('Not an valid argon2 password hash', e);
+      throw new RpcException({
+        statusCode: 400,
+        message: 'This password hash do not have an valid algorithm.',
+      });
     }
-
-    throw new UnauthorizedException('Invalid credentials');
   }
 
   async validateToken(token: string) {
