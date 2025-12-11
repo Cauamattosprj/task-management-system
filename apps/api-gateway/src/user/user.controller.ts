@@ -1,5 +1,5 @@
 import { Controller, Get, Inject, Req, UseGuards } from '@nestjs/common';
-import { AUTH_SERVICE, USERS_SERVICE } from 'src/constants';
+import { USERS_SERVICE } from '@constants';
 import { AuthGuard } from 'src/guards/auth/auth.guard';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom, Observable } from 'rxjs';
@@ -14,7 +14,7 @@ export class UserController {
   @Get()
   async getUser(@Req() req: { user: { userId: string } }) {
     const userId: string = req.user.userId;
-    const user = await firstValueFrom<Observable<any>>(
+    const user =await firstValueFrom<Observable<any>>(
       this.userClient.send('user-get-by-id', userId),
     );
 

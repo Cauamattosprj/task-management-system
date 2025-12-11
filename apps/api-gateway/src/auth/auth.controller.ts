@@ -6,10 +6,10 @@ import {
   Inject,
   Post,
 } from '@nestjs/common';
-import { UserLoginDTO } from '@dtos/login.dto';
-import { UserRegisterDTO } from '@dtos/register.dto';
+import { UserLoginDTO } from '@dtos/user/login.dto';
+import { UserRegisterDTO } from '@dtos/user/register.dto';
 import { ClientProxy } from '@nestjs/microservices';
-import { AUTH_SERVICE } from 'src/constants';
+import { AUTH_SERVICE } from '@constants';
 
 @Controller('auth')
 export class AuthController {

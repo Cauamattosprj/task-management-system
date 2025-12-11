@@ -22,7 +22,8 @@
     "strictBindCallApply": false,
     "noFallthroughCasesInSwitch": false,
     "paths": {
-      "@dtos/*": ["../../packages/types/dto/user/*"]
+      "@dtos/*": ["../../packages/types/dto/*"],
+      "@constants": ["../../packages/types/constants/index"]
     }
   }
 }
