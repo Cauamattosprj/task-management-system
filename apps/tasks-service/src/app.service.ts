@@ -25,8 +25,27 @@ export class AppService {
   findOne(id: string) {
     throw new Error('Method not implemented.');
   }
-  findAll() {
-    throw new Error('Method not implemented.');
+  async findAll(pageNumber: number, pageSize: number) {
+    Logger.log('TasksService.findAll: ', { pageNumber, pageSize });
+
+    const skip = (pageNumber - 1) * pageSize;
+    const take = pageSize;
+
+    const tasks = await this.taskRepository.find({
+      skip,
+      take,
+      order: { createdAt: 'DESC' },
+    });
+
+    const total = await this.taskRepository.count();
+
+    return {
+      data: tasks,
+      total,
+      pageNumber,
+      pageSize,
+      totalPages: Math.ceil(total / pageSize),
+    };
   }
   async create(createTaskDto: CreateTaskDTO, userId: string) {
     console.log('DADOS RECEBEIDOS NO METODO CREATE', createTaskDto, userId);

@@ -33,17 +33,17 @@ export class TasksService {
 
     return task;
   }
-  async findAll() {
+  async findAll(pageNumber: number, pageSize: number) {
     const allTasks = await firstValueFrom<TaskDTO>(
-      this.tasksClient.send('tasks.find.all', {}),
+      this.tasksClient.send('tasks.find.all', { pageNumber, pageSize }),
     );
 
     return allTasks;
   }
 
-  async create(createTaskDto: CreateTaskDTO) {
+  async create(createTaskDto: CreateTaskDTO, userId: string) {
     const createdTask = await firstValueFrom<TaskDTO>(
-      this.tasksClient.send('tasks.create', createTaskDto),
+      this.tasksClient.send('tasks.create', { createTaskDto, userId }),
     );
 
     return createdTask;

@@ -1,4 +1,10 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import TaskPriorityEnum from '../../../packages/types/enums/task/TaskPriorityEnum';
 import TaskStatusEnum from '../../../packages/types/enums/task/TaskStatusEnum';
 import { TaskComment } from './task-comment.entity';
@@ -32,4 +38,7 @@ export class Task {
 
   @OneToMany(() => TaskLog, (log) => log.task)
   history_log: string[];
+
+  @CreateDateColumn({ type: 'timestamptz' })
+  createdAt: Date;
 }

@@ -17,8 +17,11 @@ export class AppController {
   }
 
   @MessagePattern('tasks.find.all')
-  findAll() {
-    return this.appService.findAll();
+  findAll(
+    @Payload()
+    { pageNumber, pageSize }: { pageNumber: number; pageSize: number },
+  ) {
+    return this.appService.findAll(pageNumber, pageSize);
   }
 
   @MessagePattern('tasks.find.byId')
