@@ -4,13 +4,16 @@ import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { Task } from './task.entity';
+import TaskStatusEnum from '@enums/task/TaskStatusEnum';
+import TaskPriorityEnum from '@enums/task/TaskPriorityEnum';
+import { TaskLog } from './task-log.entity';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-    TypeOrmModule.forFeature([Task]),
+    TypeOrmModule.forFeature([Task, TaskLog]),
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: process.env.POSTGRES_HOST,

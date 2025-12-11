@@ -9,8 +9,11 @@ export class AppController {
   constructor(private readonly appService: AppService) {}
 
   @MessagePattern('tasks.create')
-  create(@Payload() createTaskDto: CreateTaskDTO) {
-    return this.appService.create(createTaskDto);
+  create(
+    @Payload()
+    { userId, createTaskDto }: { userId: string; createTaskDto: CreateTaskDTO },
+  ) {
+    return this.appService.create(createTaskDto, userId);
   }
 
   @MessagePattern('tasks.find.all')

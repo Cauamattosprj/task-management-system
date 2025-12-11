@@ -27,6 +27,6 @@ export class TaskComment {
   @Column()
   comment: string;
 
-  @Column()
-  timestamp: Date;
+  @Column('timestamptz')
+  createdAt: Date;
 }

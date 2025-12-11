@@ -1,7 +1,8 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
-import TaskPriorityEnum from '@enums/task/TaskPriorityEnum';
-import TaskStatusEnum from '@enums/task/TaskStatusEnum';
+import TaskPriorityEnum from '../../../packages/types/enums/task/TaskPriorityEnum';
+import TaskStatusEnum from '../../../packages/types/enums/task/TaskStatusEnum';
 import { TaskComment } from './task-comment.entity';
+import { TaskLog } from './task-log.entity';
 
 @Entity()
 export class Task {
@@ -27,8 +28,8 @@ export class Task {
   assignedUsers: string[];
 
   @OneToMany(() => TaskComment, (comment) => comment.task)
-  comments: TaskComment[]
+  comments: TaskComment[];
 
-  // @Column('text', { array: true })
-  // history_log: string[];
+  @OneToMany(() => TaskLog, (log) => log.task)
+  history_log: string[];
 }
