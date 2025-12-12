@@ -12,7 +12,7 @@ export class Initial1765412899970 implements MigrationInterface {
         "deadline" timestamptz,
         "priority" text NOT NULL,
         "status" text NOT NULL,
-        "assignedUsers" text[],
+        "assignedUsersIds" text[],
         CONSTRAINT "PK_task_id" PRIMARY KEY ("id")
       );
     `);
