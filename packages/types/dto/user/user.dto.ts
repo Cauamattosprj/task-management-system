@@ -1,4 +1,4 @@
-import { Transform } from "class-transformer";
+import { Expose, Transform } from "class-transformer";
 import {
   IsEmail,
   IsNotEmpty,
@@ -11,11 +11,13 @@ import {
 export class UserDTO {
   @IsUUID()
   @IsNotEmpty()
+  @Expose()
   id!: string;
 
   @IsEmail()
   @IsNotEmpty()
   @Transform(({ value }: { value: string }) => value?.toLowerCase().trim())
+  @Expose()
   email!: string;
 
   @IsNotEmpty()
@@ -26,9 +28,11 @@ export class UserDTO {
   @IsString()
   @IsNotEmpty()
   @MinLength(2)
+  @Expose()
   username!: string;
 
   @IsString()
   @IsNotEmpty()
+  @Expose()
   role: string;
 }
