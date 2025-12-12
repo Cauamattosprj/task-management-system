@@ -1,6 +1,7 @@
 import {
   Column,
   CreateDateColumn,
+  DeleteDateColumn,
   Entity,
   OneToMany,
   PrimaryGeneratedColumn,
@@ -30,8 +31,8 @@ export class Task {
   @Column('text')
   status: TaskStatusEnum = TaskStatusEnum.TODO;
 
-  @Column('text', { array: true, nullable: true })
-  assignedUsers: string[];
+  @Column('simple-array', { nullable: true })
+  assignedUsersIds: string[];
 
   @OneToMany(() => TaskComment, (comment) => comment.task)
   comments: TaskComment[];
@@ -41,4 +42,10 @@ export class Task {
 
   @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;
+
+  @DeleteDateColumn()
+  deletedAt: Date;
+
+  @Column({ default: false })
+  isDeleted: boolean;
 }
