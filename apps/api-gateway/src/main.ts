@@ -1,6 +1,7 @@
 import { NestFactory, Reflector } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common';
+import cookieParser from 'cookie-parser';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -12,6 +13,7 @@ async function bootstrap() {
       transform: true,
     }),
   );
+  app.use(cookieParser())
 
   console.log('running on port', process.env.PORT);
   await app.listen(Number.parseInt(process.env.PORT as string));

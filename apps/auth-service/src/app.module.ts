@@ -10,6 +10,7 @@ import {
   Transport,
 } from '@nestjs/microservices';
 import { USERS_SERVICE } from '@constants/inject-tokens';
+import { Session } from './session.entity';
 
 @Module({
   imports: [
@@ -23,7 +24,7 @@ import { USERS_SERVICE } from '@constants/inject-tokens';
         expiresIn: '15m',
       },
     }),
-    TypeOrmModule.forFeature([]),
+    TypeOrmModule.forFeature([Session]),
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: process.env.POSTGRES_HOST,
@@ -50,6 +51,6 @@ import { USERS_SERVICE } from '@constants/inject-tokens';
     ]),
   ],
   controllers: [AppController],
-  providers: [AppService]
+  providers: [AppService],
 })
 export class AppModule {}

@@ -36,13 +36,9 @@ export class TaskDTO {
 
   @IsArray()
   @IsOptional()
-  assignedUsers: string[];
+  assignedUsersIds: string[];
 
   @IsArray()
   @IsOptional()
-  comments: string[];
-
-  @IsArray()
-  @IsOptional()
-  history_log: string[];
+  commentIds: string[];
 }

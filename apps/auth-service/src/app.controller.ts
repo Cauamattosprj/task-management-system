@@ -8,23 +8,19 @@ import { UserRegisterDTO } from '../../../packages/types/dto/user/register.dto';
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
+  @MessagePattern('auth-refresh')
+  async refresh(@Payload() refreshToken: string) {
+    return await this.appService.refresh(refreshToken);
+  }
+
   @MessagePattern('auth-login')
   async login(@Payload() loginDto: UserLoginDTO) {
-    try {
-      console.log('Login', loginDto);
-      return await this.appService.login(loginDto);
-    } catch (error) {
-      if (error instanceof RpcException) throw error;
-    }
+    return await this.appService.login(loginDto);
   }
 
   @MessagePattern('auth-register')
   registerUser(@Payload() registerDTO: UserRegisterDTO) {
-    try {
-      return this.appService.register(registerDTO);
-    } catch (error) {
-      if (error instanceof RpcException) throw error;
-    }
+    return this.appService.register(registerDTO);
   }
 
   @MessagePattern('auth-validate-token')

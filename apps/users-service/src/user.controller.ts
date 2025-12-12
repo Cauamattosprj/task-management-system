@@ -2,6 +2,7 @@ import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { UserService } from './user.service';
 import { UserRegisterDTO } from '@dto/user/register.dto';
+import { PublicUserDTO } from '@dto/user/public-user.dto';
 
 @Controller()
 export class UserController {
@@ -12,7 +13,7 @@ export class UserController {
     return await this.userService.getUserByEmail(email);
   }
 
-  @MessagePattern('user-get-by-id')
+  @MessagePattern('user.get.byId')
   async getUserById(@Payload() userId: string) {
     return await this.userService.getUserById(userId);
   }
