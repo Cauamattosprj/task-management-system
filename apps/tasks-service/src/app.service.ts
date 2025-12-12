@@ -6,7 +6,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { TaskLog, TaskLogAction } from './task-log.entity';
 import { ClientProxy, RpcException } from '@nestjs/microservices';
-import { diffChars } from 'diff';
+import { diffWords } from 'diff';
 import { USERS_SERVICE } from '@constants';
 import { firstValueFrom } from 'rxjs';
 
@@ -99,6 +99,7 @@ export class AppService {
       }
     }
 
+    const originalCopy = JSON.parse(JSON.stringify(originalTask));
     const updatedTask = this.taskRepository.merge(originalTask, updateTaskDto);
     await this.taskRepository.save(updatedTask);
 
@@ -111,41 +112,63 @@ export class AppService {
       { key: 'description', action: TaskLogAction.DESCRIPTION_CHANGED },
     ];
 
+    const partsChanged: {
+      name: string;
+      before?: any;
+      after?: any;
+      delta?: any;
+    }[] = [];
     for (const field of fieldsToCheck) {
-      const before = originalTask[field.key];
+      const before = originalCopy[field.key];
       const after = updatedTask[field.key];
 
-      const isArray = Array.isArray(before) && Array.isArray(after);
-      const changed = isArray
+      const bothArrays = Array.isArray(before) && Array.isArray(after);
+      const changed = bothArrays
         ? JSON.stringify(before) !== JSON.stringify(after)
         : before != after;
 
       if (!changed) continue;
 
-      switch (field.key) {
-        case 'description':
-          await this.logRepository.save({
-            taskId,
-            action: field.action,
-            userId,
-            before,
-            after,
-          });
-          break;
 
-        default:
-          await this.logRepository.save({
-            taskId,
-            action: field.action,
-            userId,
-            before,
-            after,
-          });
-          break;
+      if (field.key === 'description') {
+        const parts = diffWords(before ?? '', after ?? '');
+
+        partsChanged.push({
+          name: field.key,
+          delta: parts,
+        });
+
+        await this.logRepository.save({
+          taskId,
+          action: field.action,
+          userId,
+          before,
+          after,
+          delta: parts,
+        });
+        continue;
       }
+
+      partsChanged.push({
+        name: field.key,
+        before,
+        after,
+      });
+
+      await this.logRepository.save({
+        taskId,
+        action: field.action,
+        userId,
+        before,
+        after,
+      });
     }
 
-    return { message: `Task with id ${taskId} was sucessfully updated` };
+    return {
+      message: `Task with id ${taskId} was sucessfully updated`,
+      task: updatedTask,
+      changed: partsChanged,
+    };
   }
 
   async findOne(taskId: string) {
