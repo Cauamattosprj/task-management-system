@@ -19,9 +19,13 @@ export class TasksService {
 
     return removed;
   }
-  async update(id: string, updateTaskDto: UpdateTaskDTO) {
+  async update(taskId: string, updateTaskDto: UpdateTaskDTO, userId: string) {
     const updatedTask = await firstValueFrom<TaskDTO>(
-      this.tasksClient.send('tasks.update.byId', { id, updateTaskDto }),
+      this.tasksClient.send('tasks.update.byId', {
+        taskId,
+        updateTaskDto,
+        userId,
+      }),
     );
 
     return updatedTask;
