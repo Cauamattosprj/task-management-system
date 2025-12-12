@@ -32,13 +32,21 @@ export class AppController {
   @MessagePattern('tasks.update.byId')
   update(
     @Payload()
-    { id, updateTaskDto }: { id: string; updateTaskDto: UpdateTaskDTO },
+    {
+      taskId,
+      updateTaskDto,
+      userId,
+    }: {
+      taskId: string;
+      updateTaskDto: UpdateTaskDTO;
+      userId: string;
+    },
   ) {
-    return this.appService.update(id, updateTaskDto);
+    return this.appService.update(taskId, updateTaskDto, userId);
   }
 
   @MessagePattern('tasks.delete.byId')
-  remove(@Payload() id: string) {
-    return this.appService.remove(id);
+  remove(@Payload() { taskId, userId }: { taskId: string; userId: string }) {
+    return this.appService.remove(taskId, userId);
   }
 }

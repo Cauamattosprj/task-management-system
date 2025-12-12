@@ -7,6 +7,8 @@ import { Task } from './task.entity';
 import TaskStatusEnum from '@enums/task/TaskStatusEnum';
 import TaskPriorityEnum from '@enums/task/TaskPriorityEnum';
 import { TaskLog } from './task-log.entity';
+import { USERS_SERVICE } from '@constants';
+import { ClientsModule, Transport } from '@nestjs/microservices';
 
 @Module({
   imports: [
@@ -26,6 +28,19 @@ import { TaskLog } from './task-log.entity';
       synchronize: process.env.NODE_ENV !== 'production',
       logging: true,
     }),
+    ClientsModule.register([
+      {
+        name: USERS_SERVICE,
+        transport: Transport.RMQ,
+        options: {
+          urls: [process.env.RABBITMQ_URL as string],
+          queue: process.env.USERS_QUEUE as string,
+          queueOptions: {
+            durable: true,
+          },
+        },
+      },
+    ]),
   ],
   controllers: [AppController],
   providers: [AppService],
