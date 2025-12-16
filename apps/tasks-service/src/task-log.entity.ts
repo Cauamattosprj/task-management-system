@@ -11,6 +11,7 @@ import { Task } from './task.entity';
 export enum TaskLogAction {
   CREATED = 'CREATED',
   UPDATED = 'UPDATED',
+  COMMENT_CREATED = 'COMMENT_CREATED',
   ARCHIVED = 'ARCHIVED',
   STATUS_CHANGED = 'STATUS_CHANGED',
   PRIORITY_CHANGED = 'PRIORITY_CHANGED',

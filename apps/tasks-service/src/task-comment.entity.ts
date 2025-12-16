@@ -1,5 +1,6 @@
 import {
   Column,
+  CreateDateColumn,
   Entity,
   JoinColumn,
   ManyToOne,
@@ -27,6 +28,6 @@ export class TaskComment {
   @Column()
   comment: string;
 
-  @Column('timestamptz')
+  @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;
 }

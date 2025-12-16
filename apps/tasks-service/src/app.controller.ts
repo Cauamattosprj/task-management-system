@@ -1,8 +1,9 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller } from '@nestjs/common';
 import { AppService } from './app.service';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { UpdateTaskDTO } from '@dtos/task/update-task.dto';
 import { CreateTaskDTO } from '@dtos/task/create-task.dto';
+import { CreateCommentDTO } from '@dtos/task/comment/create-comment.dto';
 
 @Controller()
 export class AppController {
@@ -22,6 +23,38 @@ export class AppController {
     { pageNumber, pageSize }: { pageNumber: number; pageSize: number },
   ) {
     return this.appService.findAll(pageNumber, pageSize);
+  }
+
+  @MessagePattern('tasks.comments.create')
+  createComment(
+    @Payload()
+    {
+      userId,
+      taskId,
+      createCommentDto,
+    }: {
+      userId: string;
+      taskId: string;
+      createCommentDto: CreateCommentDTO;
+    },
+  ) {
+    return this.appService.createComment(userId, taskId, createCommentDto);
+  }
+
+  @MessagePattern('tasks.comments.find.all')
+  findAllComments(
+    @Payload()
+    {
+      taskId,
+      pageNumber,
+      pageSize,
+    }: {
+      taskId: string;
+      pageNumber: number;
+      pageSize: number;
+    },
+  ) {
+    return this.appService.findAllComments(taskId, pageNumber, pageSize);
   }
 
   @MessagePattern('tasks.find.byId')

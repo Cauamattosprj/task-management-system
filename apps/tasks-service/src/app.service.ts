@@ -1,5 +1,9 @@
 import { UpdateTaskDTO } from '@dtos/task/update-task.dto';
 import { CreateTaskDTO } from '@dtos/task/create-task.dto';
+import { TaskCreatedEventDTO } from '@dtos/notifications/task.created.event.dto';
+import { TaskUpdatedEventDTO } from '@dtos/notifications/task.updated.event.dto';
+import { TaskCommentCreatedEventDTO } from '@dtos/notifications/task.comment.created.event.dto';
+import { UserDTO } from '@dtos/user/user.dto';
 import { Inject, Injectable, InjectionToken, Logger } from '@nestjs/common';
 import { Task } from './task.entity';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -7,8 +11,10 @@ import { DataSource, Repository } from 'typeorm';
 import { TaskLog, TaskLogAction } from './task-log.entity';
 import { ClientProxy, RpcException } from '@nestjs/microservices';
 import { diffWords } from 'diff';
-import { USERS_SERVICE } from '@constants';
+import { NOTIFICATIONS_SERVICE, USERS_SERVICE } from '@constants';
 import { firstValueFrom } from 'rxjs';
+import { CreateCommentDTO } from '@dtos/task/comment/create-comment.dto';
+import { TaskComment } from './task-comment.entity';
 
 @Injectable()
 export class AppService {
@@ -19,8 +25,14 @@ export class AppService {
     @InjectRepository(TaskLog)
     private readonly logRepository: Repository<TaskLog>,
 
+    @InjectRepository(TaskComment)
+    private readonly commentRepository: Repository<TaskComment>,
+
     @Inject(USERS_SERVICE as InjectionToken)
     private readonly usersClient: ClientProxy,
+
+    @Inject(NOTIFICATIONS_SERVICE as InjectionToken)
+    private readonly notificationsClient: ClientProxy,
   ) {}
 
   async remove(taskId: string, userId: string) {
@@ -49,6 +61,7 @@ export class AppService {
       return softDeletedTask;
     }
   }
+
   async update(taskId: string, updateTaskDto: UpdateTaskDTO, userId: string) {
     Logger.log('TasksService.update: ', { taskId, updateTaskDto, userId });
 
@@ -76,7 +89,7 @@ export class AppService {
         updateTaskDto.assignedUsersIds.map(async (assignedId) => {
           try {
             const user = await firstValueFrom(
-              this.usersClient.send('user.get.byId', assignedId),
+              this.usersClient.send<UserDTO>('user.get.byId', assignedId),
             );
 
             return { id: assignedId, exists: !!user };
@@ -129,7 +142,6 @@ export class AppService {
 
       if (!changed) continue;
 
-
       if (field.key === 'description') {
         const parts = diffWords(before ?? '', after ?? '');
 
@@ -163,6 +175,14 @@ export class AppService {
         after,
       });
     }
+
+    const taskUpdatedEventDto = new TaskUpdatedEventDTO();
+    taskUpdatedEventDto.taskId = updatedTask.id;
+    taskUpdatedEventDto.createdAt = updatedTask.createdAt;
+    taskUpdatedEventDto.taskTitle = updatedTask.title;
+    taskUpdatedEventDto.updatedByUserId = userId;
+    taskUpdatedEventDto.assigneesId = updatedTask.assignedUsersIds;
+    this.notificationsClient.emit('task.updated', taskUpdatedEventDto);
 
     return {
       message: `Task with id ${taskId} was sucessfully updated`,
@@ -210,6 +230,14 @@ export class AppService {
         userId: userId,
       });
 
+      const taskCreatedEventDto = new TaskCreatedEventDTO();
+
+      taskCreatedEventDto.taskId = savedTask.id;
+      taskCreatedEventDto.taskTitle = savedTask.title;
+      taskCreatedEventDto.createdByUserId = log.userId;
+
+      this.notificationsClient.emit('task.created', taskCreatedEventDto);
+
       if (!log) {
         await this.taskRepository.delete(savedTask.id);
         throw new RpcException({
@@ -220,5 +248,75 @@ export class AppService {
 
       return savedTask;
     }
+  }
+
+  async createComment(
+    userId: string,
+    taskId: string,
+    createCommentDto: CreateCommentDTO,
+  ) {
+    const savedComment = await this.commentRepository.save({
+      ...createCommentDto,
+      userId,
+      taskId,
+    });
+
+    if (savedComment) {
+      const log = await this.logRepository.save({
+        taskId: savedComment.taskId,
+        action: TaskLogAction.COMMENT_CREATED,
+        userId: savedComment.userId,
+        delta: savedComment.comment,
+      });
+
+      const taskCommentCreatedEventDTO = new TaskCommentCreatedEventDTO();
+      taskCommentCreatedEventDTO.comment = savedComment.comment;
+      taskCommentCreatedEventDTO.createdAt = savedComment.createdAt;
+      taskCommentCreatedEventDTO.taskId = savedComment.taskId;
+      taskCommentCreatedEventDTO.userId = userId;
+
+      this.notificationsClient.emit(
+        'task.comment.new',
+        taskCommentCreatedEventDTO,
+      );
+
+      if (!log) {
+        await this.taskRepository.delete(savedComment.id);
+        throw new RpcException({
+          message: `Failed to save task log. The task was rolled back.`,
+          statusCode: 500,
+        });
+      }
+
+      return savedComment;
+    }
+  }
+
+  async findAllComments(taskId: string, pageNumber: number, pageSize: number) {
+    Logger.log('TasksService.findAllComments: ', {
+      taskId,
+      pageNumber,
+      pageSize,
+    });
+
+    const skip = (pageNumber - 1) * pageSize;
+    const take = pageSize;
+
+    const comments = await this.commentRepository.find({
+      where: { taskId },
+      order: { createdAt: 'DESC' },
+      skip,
+      take,
+    });
+
+    const total = comments.length;
+
+    return {
+      data: comments,
+      total,
+      pageNumber,
+      pageSize,
+      totalPages: Math.ceil(total / pageSize),
+    };
   }
 }

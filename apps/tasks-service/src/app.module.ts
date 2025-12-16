@@ -7,15 +7,16 @@ import { Task } from './task.entity';
 import TaskStatusEnum from '@enums/task/TaskStatusEnum';
 import TaskPriorityEnum from '@enums/task/TaskPriorityEnum';
 import { TaskLog } from './task-log.entity';
-import { USERS_SERVICE } from '@constants';
+import { NOTIFICATIONS_SERVICE, USERS_SERVICE } from '@constants';
 import { ClientsModule, Transport } from '@nestjs/microservices';
+import { TaskComment } from './task-comment.entity';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-    TypeOrmModule.forFeature([Task, TaskLog]),
+    TypeOrmModule.forFeature([Task, TaskLog, TaskComment]),
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: process.env.POSTGRES_HOST,
@@ -35,6 +36,17 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
         options: {
           urls: [process.env.RABBITMQ_URL as string],
           queue: process.env.USERS_QUEUE as string,
+          queueOptions: {
+            durable: true,
+          },
+        },
+      },
+      {
+        name: NOTIFICATIONS_SERVICE,
+        transport: Transport.RMQ,
+        options: {
+          urls: [process.env.RABBITMQ_URL as string],
+          queue: process.env.NOTIFICATIONS_QUEUE as string,
           queueOptions: {
             durable: true,
           },
