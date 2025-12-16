@@ -18,6 +18,11 @@ export class UserController {
     return await this.userService.getUserById(userId);
   }
 
+  @MessagePattern('user.get.all')
+  async getAllUsers() {
+    return await this.userService.getAllUsers();
+  }
+
   @MessagePattern('user-register')
   async registerUser(@Payload() userRegisterDTO: UserRegisterDTO) {
     return await this.userService.registerUser(userRegisterDTO);

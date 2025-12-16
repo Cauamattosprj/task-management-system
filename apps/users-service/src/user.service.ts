@@ -13,6 +13,15 @@ export class UserService {
     private readonly userRepository: Repository<User>,
   ) {}
 
+  async getAllUsers() {
+    try {
+      const users = await this.userRepository.find();
+      return users;
+    } catch (error) {
+      Logger.error(error);
+    }
+  }
+
   async getUserById(userId: string) {
     try {
       const user = await this.userRepository.findOneBy({ id: userId });
