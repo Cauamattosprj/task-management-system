@@ -23,7 +23,8 @@
     "noFallthroughCasesInSwitch": false,
     "paths": {
       "@constants/*": ["../../packages/types/constants/*"],
-      "@dto/*": ["../../packages/types/dto/*"]
+      "@dto/*": ["../../packages/types/dto/*"],
+      "@interfaces/*": ["../../packages/types/interfaces/*"]
     }
   }
 }

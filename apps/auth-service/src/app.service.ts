@@ -1,24 +1,18 @@
-import {
-  Inject,
-  Injectable,
-  InjectionToken,
-  Logger,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { Inject, Injectable, InjectionToken, Logger } from '@nestjs/common';
 import { UserLoginDTO } from '@dto/user/login.dto';
 import { UserDTO } from '@dto/user/user.dto';
 import { PublicUserDTO } from '@dto/user/public-user.dto';
 import { UserRegisterDTO } from '@dto/user/register.dto';
 import { JwtService } from '@nestjs/jwt';
-import { ClientProxy, Payload, RpcException } from '@nestjs/microservices';
+import { ClientProxy, RpcException } from '@nestjs/microservices';
 import { USERS_SERVICE } from '@constants/inject-tokens';
 import { firstValueFrom } from 'rxjs';
 import { hash, verify } from 'argon2';
-import { instanceToPlain, plainToInstance } from 'class-transformer';
+import { plainToInstance } from 'class-transformer';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Session } from './session.entity';
-import { RefreshTokenPayload } from './types';
+import { RefreshTokenPayload } from '@interfaces/token-payloads';
 
 @Injectable()
 export class AppService {
@@ -81,7 +75,10 @@ export class AppService {
         });
       }
 
-      const newRefreshToken = this.generateRefreshToken(payload.sub);
+      const newRefreshToken = this.generateRefreshToken(
+        payload.sub,
+        payload.sessionId,
+      );
 
       session.refreshTokenHash = await hash(newRefreshToken);
       await this.sessionRepo.save(session);
@@ -184,7 +181,10 @@ export class AppService {
       }
 
       const accessToken = this.generateAccessToken(existingUser);
-      const refreshToken = this.generateRefreshToken(existingUser.id);
+      const refreshToken = this.generateRefreshToken(
+        existingUser.id,
+        crypto.randomUUID(),
+      );
 
       const { sessionId }: { sessionId: string } = this.jwtService.verify(
         refreshToken,
@@ -229,9 +229,7 @@ export class AppService {
     );
   }
 
-  generateRefreshToken(userId: string) {
-    const sessionId = crypto.randomUUID();
-
+  generateRefreshToken(userId: string, sessionId: string) {
     return this.jwtService.sign(
       {
         sub: userId,

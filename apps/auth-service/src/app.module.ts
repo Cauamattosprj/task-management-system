@@ -4,11 +4,7 @@ import { AppService } from './app.service';
 import { JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
-import {
-  ClientProviderOptions,
-  ClientsModule,
-  Transport,
-} from '@nestjs/microservices';
+import { ClientsModule, Transport } from '@nestjs/microservices';
 import { USERS_SERVICE } from '@constants/inject-tokens';
 import { Session } from './session.entity';
 
@@ -19,7 +15,7 @@ import { Session } from './session.entity';
       envFilePath: '.env',
     }),
     JwtModule.register({
-      secret: process.env.JWT_SECRET,
+      secret: process.env.JWT_ACCESS_SECRET,
       signOptions: {
         expiresIn: '15m',
       },
