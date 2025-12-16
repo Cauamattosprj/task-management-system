@@ -14,6 +14,7 @@ import {
   SignalLow,
   Calendar,
   Users,
+  Circle,
 } from "lucide-react";
 
 import {
@@ -80,6 +81,7 @@ import { ParseStatus, z } from "zod";
 import { Separator } from "./ui/separator";
 import { AssignUsersCombobox } from "./assign-users-combobox";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { TaskStatusCombobox } from "./task-status-combobox";
 
 // This is sample data
 const data = {
@@ -214,6 +216,7 @@ export function CreateTaskDialog() {
   const [assignedUsers, setAssignedUsers] = React.useState<
     { name: string; id: string }[] | undefined
   >(undefined);
+  const [status, setStatus] = React.useState<TaskStatusEnum>();
 
   React.useEffect(() => {
     console.log("Modificado ", assignedUsers);
@@ -245,6 +248,32 @@ export function CreateTaskDialog() {
     }
 
     return parts[0][0] + parts[0][1];
+  }
+
+  function handleStatusLabel(status: any): React.ReactNode {
+    switch (status) {
+      case "TODO":
+        return "To-Do";
+      case "IN_PROGRESS":
+        return "In progress";
+      case "REVIEW":
+        return "Review";
+      case "DONE":
+        return "Done";
+    }
+  }
+
+  function handleStatusIcon(status: any): React.ReactNode {
+    switch (status) {
+      case "TODO":
+        return <Circle className="text-gray-600" />;
+      case "IN_PROGRESS":
+        return <Circle className="text-yellow-600" />;
+      case "REVIEW":
+        return <Circle className="text-blue-600" />;
+      case "DONE":
+        return <Circle className="text-green-600" />;
+    }
   }
 
   return (
@@ -460,8 +489,13 @@ export function CreateTaskDialog() {
               control={form.control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
-                  <Popover>
-                    <PopoverTrigger asChild>
+                  <TaskStatusCombobox
+                    value={status}
+                    onChange={(status) => {
+                      setStatus(status);
+                      field.onChange(status);
+                    }}
+                    trigger={
                       <Button
                         {...field}
                         id="task-deadline"
@@ -470,57 +504,20 @@ export function CreateTaskDialog() {
                         variant={"outline"}
                         type="button"
                       >
-                        <CircleDashed />
-                        <span>Status</span>
+                        {status ? (
+                          <div className="flex gap-2 items-center">
+                            {handleStatusIcon(status)}
+                            {handleStatusLabel(status)}
+                          </div>
+                        ) : (
+                          <div className="flex gap-2 items-center">
+                            <CircleDashed />
+                            <span>Status</span>
+                          </div>
+                        )}
                       </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-80">
-                      <div className="grid gap-4">
-                        <div className="space-y-2">
-                          <h4 className="leading-none font-medium">
-                            Dimensions
-                          </h4>
-                          <p className="text-muted-foreground text-sm">
-                            Set the dimensions for the layer.
-                          </p>
-                        </div>
-                        <div className="grid gap-2">
-                          <div className="grid grid-cols-3 items-center gap-4">
-                            <Label htmlFor="width">Width</Label>
-                            <Input
-                              id="width"
-                              defaultValue="100%"
-                              className="col-span-2 h-8"
-                            />
-                          </div>
-                          <div className="grid grid-cols-3 items-center gap-4">
-                            <Label htmlFor="maxWidth">Max. width</Label>
-                            <Input
-                              id="maxWidth"
-                              defaultValue="300px"
-                              className="col-span-2 h-8"
-                            />
-                          </div>
-                          <div className="grid grid-cols-3 items-center gap-4">
-                            <Label htmlFor="height">Height</Label>
-                            <Input
-                              id="height"
-                              defaultValue="25px"
-                              className="col-span-2 h-8"
-                            />
-                          </div>
-                          <div className="grid grid-cols-3 items-center gap-4">
-                            <Label htmlFor="maxHeight">Max. height</Label>
-                            <Input
-                              id="maxHeight"
-                              defaultValue="none"
-                              className="col-span-2 h-8"
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    </PopoverContent>
-                  </Popover>
+                    }
+                  />
                   {fieldState.invalid && (
                     <FieldError errors={[fieldState.error]} />
                   )}
@@ -585,7 +582,10 @@ export function CreateTaskDialog() {
                         )}
                       </Button>
                     }
-                    setAssignedUsers={setAssignedUsers}
+                    setAssignedUsers={(users) => {
+                      setAssignedUsers(users);
+                      field.onChange(users);
+                    }}
                   />
                   {fieldState.invalid && (
                     <FieldError errors={[fieldState.error]} />
