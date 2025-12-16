@@ -76,8 +76,10 @@ import {
   FieldLegend,
   FieldSet,
 } from "./ui/field";
-import { z } from "zod";
+import { ParseStatus, z } from "zod";
 import { Separator } from "./ui/separator";
+import { AssignUsersCombobox } from "./assign-users-combobox";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 // This is sample data
 const data = {
@@ -202,8 +204,6 @@ const data = {
   ],
 };
 
-type CreateTaskForm = z.infer<typeof createTaskSchema>;
-
 const mockUsers = [
   { id: "1", name: "Alexey" },
   { id: "2", name: "Maria" },
@@ -211,6 +211,17 @@ const mockUsers = [
 ];
 
 export function CreateTaskDialog() {
+  const [assignedUsers, setAssignedUsers] = React.useState<
+    { name: string; id: string }[] | undefined
+  >(undefined);
+
+  React.useEffect(() => {
+    console.log("Modificado ", assignedUsers);
+  }, [assignedUsers]);
+
+  const hasAssignedUsers = assignedUsers && assignedUsers.length > 0;
+  const hasMultipleUsers = assignedUsers && assignedUsers.length > 1;
+
   const form = useForm<CreateTaskFormData>({
     resolver: zodResolver(createTaskSchema),
     defaultValues: {
@@ -223,6 +234,17 @@ export function CreateTaskDialog() {
   function onSubmit(data: CreateTaskFormData) {
     console.log("Create task payload:", data);
     // TODO: chamar API
+  }
+
+  function getInitialsFromUserName(name: string): React.ReactNode {
+    const parts = name.split(" ");
+    if (parts.length > 1) {
+      const firstNameInitial = parts[0][0];
+      const secondNameInitial = parts[1][0];
+      return firstNameInitial + secondNameInitial;
+    }
+
+    return parts[0][0] + parts[0][1];
   }
 
   return (
@@ -512,8 +534,8 @@ export function CreateTaskDialog() {
               control={form.control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
-                  <Popover>
-                    <PopoverTrigger asChild>
+                  <AssignUsersCombobox
+                    trigger={
                       <Button
                         {...field}
                         id="task-deadline"
@@ -522,58 +544,49 @@ export function CreateTaskDialog() {
                         variant={"outline"}
                         type="button"
                       >
-                        <Users />
-                        <span>Assigned users</span>
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-80">
-                      <div className="grid gap-4">
-                        <div className="space-y-2">
-                          <h4 className="leading-none font-medium">
-                            Dimensions
-                          </h4>
-                          <p className="text-muted-foreground text-sm">
-                            Set the dimensions for the layer.
-                          </p>
-                        </div>
-                        <div className="grid gap-2">
-                          <div className="grid grid-cols-3 items-center gap-4">
-                            <Label htmlFor="width">Width</Label>
-                            <Input
-                              id="width"
-                              defaultValue="100%"
-                              className="col-span-2 h-8"
-                            />
+                        {!hasAssignedUsers && (
+                          <div className="flex gap-2 items-center">
+                            <Users />
+                            <span>Assignee users</span>
                           </div>
-                          <div className="grid grid-cols-3 items-center gap-4">
-                            <Label htmlFor="maxWidth">Max. width</Label>
-                            <Input
-                              id="maxWidth"
-                              defaultValue="300px"
-                              className="col-span-2 h-8"
-                            />
-                          </div>
-                          <div className="grid grid-cols-3 items-center gap-4">
-                            <Label htmlFor="height">Height</Label>
-                            <Input
-                              id="height"
-                              defaultValue="25px"
-                              className="col-span-2 h-8"
-                            />
-                          </div>
-                          <div className="grid grid-cols-3 items-center gap-4">
-                            <Label htmlFor="maxHeight">Max. height</Label>
-                            <Input
-                              id="maxHeight"
-                              defaultValue="none"
-                              className="col-span-2 h-8"
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    </PopoverContent>
-                  </Popover>
+                        )}
 
+                        {hasAssignedUsers && hasMultipleUsers && (
+                          <div>
+                            <div className="*:data-[slot=avatar]:ring-background flex -space-x-1 *:data-[slot=avatar]:ring-2">
+                              {assignedUsers.map((user) => (
+                                <Avatar className="size-6">
+                                  <AvatarImage src="htts://github.com/shadcn.png" />
+                                  <AvatarFallback>
+                                    <span>
+                                      {getInitialsFromUserName(user.name)}
+                                    </span>
+                                  </AvatarFallback>
+                                </Avatar>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {hasAssignedUsers && !hasMultipleUsers && (
+                          <div className="flex gap-2 items-center">
+                            <Avatar>
+                              <AvatarImage src="htts://github.com/shadcn.png" />
+                              <AvatarFallback>
+                                <span>
+                                  {getInitialsFromUserName(
+                                    assignedUsers[0].name
+                                  )}
+                                </span>
+                              </AvatarFallback>
+                            </Avatar>
+                            <span>{assignedUsers[0].name}</span>
+                          </div>
+                        )}
+                      </Button>
+                    }
+                    setAssignedUsers={setAssignedUsers}
+                  />
                   {fieldState.invalid && (
                     <FieldError errors={[fieldState.error]} />
                   )}
