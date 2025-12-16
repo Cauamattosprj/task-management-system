@@ -22,7 +22,10 @@
     "noUncheckedSideEffectImports": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@dtos/*": ["../../packages/types/dto/*"],
+      "@enums/*": ["../../packages/types/enums/*"],
+      "@constants": ["../../packages/types/constants/index"]
     }
   }
 }

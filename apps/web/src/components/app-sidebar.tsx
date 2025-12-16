@@ -10,7 +10,17 @@ import {
   Trash2,
   CheckSquare,
   Plus,
+  CircleDashed,
+  SignalLow,
+  Calendar,
+  Users,
 } from "lucide-react";
+
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 import { NavUser } from "@/components/nav-user";
 import { Label } from "@/components/ui/label";
@@ -29,6 +39,45 @@ import {
 } from "@/components/ui/sidebar";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "./ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+
+import { Controller, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  createTaskSchema,
+  type CreateTaskFormData,
+} from "@/schemas/create-task-schema";
+import TaskPriorityEnum from "@shared/types/enums/task/TaskPriorityEnum";
+import TaskStatusEnum from "@shared/types/enums/task/TaskPriorityEnum";
+import {
+  Field,
+  FieldContent,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+  FieldLegend,
+  FieldSet,
+} from "./ui/field";
+import { z } from "zod";
+import { Separator } from "./ui/separator";
 
 // This is sample data
 const data = {
@@ -153,6 +202,395 @@ const data = {
   ],
 };
 
+type CreateTaskForm = z.infer<typeof createTaskSchema>;
+
+const mockUsers = [
+  { id: "1", name: "Alexey" },
+  { id: "2", name: "Maria" },
+  { id: "3", name: "João" },
+];
+
+export function CreateTaskDialog() {
+  const form = useForm<CreateTaskFormData>({
+    resolver: zodResolver(createTaskSchema),
+    defaultValues: {
+      priority: TaskPriorityEnum.MEDIUM,
+      status: TaskStatusEnum.TODO,
+      assignedUsers: [],
+    },
+  });
+
+  function onSubmit(data: CreateTaskFormData) {
+    console.log("Create task payload:", data);
+    // TODO: chamar API
+  }
+
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button size="sm" className="justify-start gap-2">
+          <Plus size={16} />
+          New task
+        </Button>
+      </DialogTrigger>
+
+      <DialogContent className="w-[80vw] !max-w-none max-h-[90%] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="text-sm">New Task</DialogTitle>
+          <Separator />
+        </DialogHeader>
+
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          {/* TITLE */}
+          <Controller
+            name="title"
+            control={form.control}
+            render={({ field, fieldState }) => (
+              <Field data-invalid={fieldState.invalid}>
+                <input
+                  {...field}
+                  id={field.name}
+                  placeholder="Task title"
+                  aria-invalid={fieldState.invalid}
+                  className="text-lg font-semibold placeholder:focus-visible:text-muted-foreground focus-visible:outline-0 "
+                />
+                {fieldState.invalid && (
+                  <FieldError errors={[fieldState.error]} />
+                )}
+              </Field>
+            )}
+          />
+
+          {/* DESCRIPTION */}
+          <Controller
+            name="description"
+            control={form.control}
+            render={({ field, fieldState }) => (
+              <Field data-invalid={fieldState.invalid}>
+                <textarea
+                  {...field}
+                  id="task-description"
+                  placeholder="The description of your task..."
+                  aria-invalid={fieldState.invalid}
+                  className="min-h-[200px] placeholder:focus-visible:text-muted-foreground focus-visible:outline-0"
+                />
+                {fieldState.invalid && (
+                  <FieldError errors={[fieldState.error]} />
+                )}
+              </Field>
+            )}
+          />
+
+          <div className="grid grid-cols-4 gap-x-2 gap-y-2 justify-between">
+            {/* DEADLINE */}
+            <Controller
+              name="deadline"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        {...field}
+                        id="task-deadline"
+                        aria-invalid={fieldState.invalid}
+                        size={"icon"}
+                        variant={"outline"}
+                        type="button"
+                        className="w-32"
+                      >
+                        <Calendar />
+                        <span>Deadline</span>
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-80">
+                      <div className="grid gap-4">
+                        <div className="space-y-2">
+                          <h4 className="leading-none font-medium">
+                            Dimensions
+                          </h4>
+                          <p className="text-muted-foreground text-sm">
+                            Set the dimensions for the layer.
+                          </p>
+                        </div>
+                        <div className="grid gap-2">
+                          <div className="grid grid-cols-3 items-center gap-4">
+                            <Label htmlFor="width">Width</Label>
+                            <Input
+                              id="width"
+                              defaultValue="100%"
+                              className="col-span-2 h-8"
+                            />
+                          </div>
+                          <div className="grid grid-cols-3 items-center gap-4">
+                            <Label htmlFor="maxWidth">Max. width</Label>
+                            <Input
+                              id="maxWidth"
+                              defaultValue="300px"
+                              className="col-span-2 h-8"
+                            />
+                          </div>
+                          <div className="grid grid-cols-3 items-center gap-4">
+                            <Label htmlFor="height">Height</Label>
+                            <Input
+                              id="height"
+                              defaultValue="25px"
+                              className="col-span-2 h-8"
+                            />
+                          </div>
+                          <div className="grid grid-cols-3 items-center gap-4">
+                            <Label htmlFor="maxHeight">Max. height</Label>
+                            <Input
+                              id="maxHeight"
+                              defaultValue="none"
+                              className="col-span-2 h-8"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </PopoverContent>
+                  </Popover>
+
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
+              )}
+            />
+
+            {/* PRIORITY */}
+            <Controller
+              name="priority"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        {...field}
+                        id="task-deadline"
+                        aria-invalid={fieldState.invalid}
+                        size={"icon"}
+                        variant={"outline"}
+                        type="button"
+                      >
+                        <SignalLow />
+                        <span>Priority</span>
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-80">
+                      <div className="grid gap-4">
+                        <div className="space-y-2">
+                          <h4 className="leading-none font-medium">
+                            Dimensions
+                          </h4>
+                          <p className="text-muted-foreground text-sm">
+                            Set the dimensions for the layer.
+                          </p>
+                        </div>
+                        <div className="grid gap-2">
+                          <div className="grid grid-cols-3 items-center gap-4">
+                            <Label htmlFor="width">Width</Label>
+                            <Input
+                              id="width"
+                              defaultValue="100%"
+                              className="col-span-2 h-8"
+                            />
+                          </div>
+                          <div className="grid grid-cols-3 items-center gap-4">
+                            <Label htmlFor="maxWidth">Max. width</Label>
+                            <Input
+                              id="maxWidth"
+                              defaultValue="300px"
+                              className="col-span-2 h-8"
+                            />
+                          </div>
+                          <div className="grid grid-cols-3 items-center gap-4">
+                            <Label htmlFor="height">Height</Label>
+                            <Input
+                              id="height"
+                              defaultValue="25px"
+                              className="col-span-2 h-8"
+                            />
+                          </div>
+                          <div className="grid grid-cols-3 items-center gap-4">
+                            <Label htmlFor="maxHeight">Max. height</Label>
+                            <Input
+                              id="maxHeight"
+                              defaultValue="none"
+                              className="col-span-2 h-8"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </PopoverContent>
+                  </Popover>
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
+              )}
+            />
+
+            {/* STATUS */}
+            <Controller
+              name="status"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        {...field}
+                        id="task-deadline"
+                        aria-invalid={fieldState.invalid}
+                        size={"icon"}
+                        variant={"outline"}
+                        type="button"
+                      >
+                        <CircleDashed />
+                        <span>Status</span>
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-80">
+                      <div className="grid gap-4">
+                        <div className="space-y-2">
+                          <h4 className="leading-none font-medium">
+                            Dimensions
+                          </h4>
+                          <p className="text-muted-foreground text-sm">
+                            Set the dimensions for the layer.
+                          </p>
+                        </div>
+                        <div className="grid gap-2">
+                          <div className="grid grid-cols-3 items-center gap-4">
+                            <Label htmlFor="width">Width</Label>
+                            <Input
+                              id="width"
+                              defaultValue="100%"
+                              className="col-span-2 h-8"
+                            />
+                          </div>
+                          <div className="grid grid-cols-3 items-center gap-4">
+                            <Label htmlFor="maxWidth">Max. width</Label>
+                            <Input
+                              id="maxWidth"
+                              defaultValue="300px"
+                              className="col-span-2 h-8"
+                            />
+                          </div>
+                          <div className="grid grid-cols-3 items-center gap-4">
+                            <Label htmlFor="height">Height</Label>
+                            <Input
+                              id="height"
+                              defaultValue="25px"
+                              className="col-span-2 h-8"
+                            />
+                          </div>
+                          <div className="grid grid-cols-3 items-center gap-4">
+                            <Label htmlFor="maxHeight">Max. height</Label>
+                            <Input
+                              id="maxHeight"
+                              defaultValue="none"
+                              className="col-span-2 h-8"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </PopoverContent>
+                  </Popover>
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
+              )}
+            />
+
+            {/* ASSIGNED USERS */}
+            <Controller
+              name="assignedUsers"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        {...field}
+                        id="task-deadline"
+                        aria-invalid={fieldState.invalid}
+                        size={"icon"}
+                        variant={"outline"}
+                        type="button"
+                      >
+                        <Users />
+                        <span>Assigned users</span>
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-80">
+                      <div className="grid gap-4">
+                        <div className="space-y-2">
+                          <h4 className="leading-none font-medium">
+                            Dimensions
+                          </h4>
+                          <p className="text-muted-foreground text-sm">
+                            Set the dimensions for the layer.
+                          </p>
+                        </div>
+                        <div className="grid gap-2">
+                          <div className="grid grid-cols-3 items-center gap-4">
+                            <Label htmlFor="width">Width</Label>
+                            <Input
+                              id="width"
+                              defaultValue="100%"
+                              className="col-span-2 h-8"
+                            />
+                          </div>
+                          <div className="grid grid-cols-3 items-center gap-4">
+                            <Label htmlFor="maxWidth">Max. width</Label>
+                            <Input
+                              id="maxWidth"
+                              defaultValue="300px"
+                              className="col-span-2 h-8"
+                            />
+                          </div>
+                          <div className="grid grid-cols-3 items-center gap-4">
+                            <Label htmlFor="height">Height</Label>
+                            <Input
+                              id="height"
+                              defaultValue="25px"
+                              className="col-span-2 h-8"
+                            />
+                          </div>
+                          <div className="grid grid-cols-3 items-center gap-4">
+                            <Label htmlFor="maxHeight">Max. height</Label>
+                            <Input
+                              id="maxHeight"
+                              defaultValue="none"
+                              className="col-span-2 h-8"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </PopoverContent>
+                  </Popover>
+
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
+              )}
+            />
+          </div>
+          {/* SUBMIT */}
+          <Button type="submit" className="w-full">
+            Create task
+          </Button>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   // Note: I'm using state to show active item.
   // IRL you should use the url/router.
@@ -243,10 +681,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             </Label>
           </div>
           <SidebarInput placeholder="Type to search..." />
-          <Button size={'sm'} className="justify-start">
-            <Plus />
-            <span>New task</span>
-          </Button>
+
+          <CreateTaskDialog />
         </SidebarHeader>
         <SidebarContent>
           <SidebarGroup className="px-0">
