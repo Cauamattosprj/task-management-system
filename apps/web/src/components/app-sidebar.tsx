@@ -85,6 +85,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { TaskStatusCombobox } from "./task-status-combobox";
 import { TaskPriorityCombobox } from "./task-priority-combobox";
 import { TaskDeadlinePicker } from "./task-deadline-picker";
+import { createTask } from "@/lib/fetch/crud/task/create-task";
 
 // This is sample data
 const data = {
@@ -238,9 +239,9 @@ export function CreateTaskDialog() {
     },
   });
 
-  function onSubmit(data: CreateTaskFormData) {
+  async function onSubmit(data: CreateTaskFormData) {
     console.log("Create task payload:", data);
-    // TODO: chamar API
+    await createTask(data)
   }
 
   function getInitialsFromUserName(name: string): React.ReactNode {
@@ -289,7 +290,7 @@ export function CreateTaskDialog() {
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="w-[80vw] !max-w-none max-h-[90%] overflow-y-auto">
+      <DialogContent className="w-[70vw] !max-w-none max-h-[90%] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-sm">New Task</DialogTitle>
           <Separator />
