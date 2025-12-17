@@ -15,6 +15,7 @@ import {
   Calendar,
   Users,
   Circle,
+  ChevronsUpDownIcon,
 } from "lucide-react";
 
 import {
@@ -82,6 +83,8 @@ import { Separator } from "./ui/separator";
 import { AssignUsersCombobox } from "./assign-users-combobox";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { TaskStatusCombobox } from "./task-status-combobox";
+import { TaskPriorityCombobox } from "./task-priority-combobox";
+import { TaskDeadlinePicker } from "./task-deadline-picker";
 
 // This is sample data
 const data = {
@@ -217,6 +220,7 @@ export function CreateTaskDialog() {
     { name: string; id: string }[] | undefined
   >(undefined);
   const [status, setStatus] = React.useState<TaskStatusEnum>();
+  const [priority, setPriority] = React.useState<TaskPriorityEnum>();
 
   React.useEffect(() => {
     console.log("Modificado ", assignedUsers);
@@ -339,69 +343,23 @@ export function CreateTaskDialog() {
               control={form.control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
-                  <Popover>
-                    <PopoverTrigger asChild>
+                  <TaskDeadlinePicker
+                    value={field.value}
+                    onChange={field.onChange}
+                    trigger={
                       <Button
-                        {...field}
-                        id="task-deadline"
-                        aria-invalid={fieldState.invalid}
-                        size={"icon"}
-                        variant={"outline"}
+                        variant="outline"
                         type="button"
-                        className="w-32"
+                        aria-invalid={fieldState.invalid}
                       >
-                        <Calendar />
-                        <span>Deadline</span>
+                        {field.value ? (
+                          field.value.toLocaleDateString()
+                        ) : (
+                          <span>Deadline</span>
+                        )}
                       </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-80">
-                      <div className="grid gap-4">
-                        <div className="space-y-2">
-                          <h4 className="leading-none font-medium">
-                            Dimensions
-                          </h4>
-                          <p className="text-muted-foreground text-sm">
-                            Set the dimensions for the layer.
-                          </p>
-                        </div>
-                        <div className="grid gap-2">
-                          <div className="grid grid-cols-3 items-center gap-4">
-                            <Label htmlFor="width">Width</Label>
-                            <Input
-                              id="width"
-                              defaultValue="100%"
-                              className="col-span-2 h-8"
-                            />
-                          </div>
-                          <div className="grid grid-cols-3 items-center gap-4">
-                            <Label htmlFor="maxWidth">Max. width</Label>
-                            <Input
-                              id="maxWidth"
-                              defaultValue="300px"
-                              className="col-span-2 h-8"
-                            />
-                          </div>
-                          <div className="grid grid-cols-3 items-center gap-4">
-                            <Label htmlFor="height">Height</Label>
-                            <Input
-                              id="height"
-                              defaultValue="25px"
-                              className="col-span-2 h-8"
-                            />
-                          </div>
-                          <div className="grid grid-cols-3 items-center gap-4">
-                            <Label htmlFor="maxHeight">Max. height</Label>
-                            <Input
-                              id="maxHeight"
-                              defaultValue="none"
-                              className="col-span-2 h-8"
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    </PopoverContent>
-                  </Popover>
-
+                    }
+                  />
                   {fieldState.invalid && (
                     <FieldError errors={[fieldState.error]} />
                   )}
@@ -415,70 +373,14 @@ export function CreateTaskDialog() {
               control={form.control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        {...field}
-                        id="task-deadline"
-                        aria-invalid={fieldState.invalid}
-                        size={"icon"}
-                        variant={"outline"}
-                        type="button"
-                      >
-                        <SignalLow />
-                        <span>Priority</span>
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-80">
-                      <div className="grid gap-4">
-                        <div className="space-y-2">
-                          <h4 className="leading-none font-medium">
-                            Dimensions
-                          </h4>
-                          <p className="text-muted-foreground text-sm">
-                            Set the dimensions for the layer.
-                          </p>
-                        </div>
-                        <div className="grid gap-2">
-                          <div className="grid grid-cols-3 items-center gap-4">
-                            <Label htmlFor="width">Width</Label>
-                            <Input
-                              id="width"
-                              defaultValue="100%"
-                              className="col-span-2 h-8"
-                            />
-                          </div>
-                          <div className="grid grid-cols-3 items-center gap-4">
-                            <Label htmlFor="maxWidth">Max. width</Label>
-                            <Input
-                              id="maxWidth"
-                              defaultValue="300px"
-                              className="col-span-2 h-8"
-                            />
-                          </div>
-                          <div className="grid grid-cols-3 items-center gap-4">
-                            <Label htmlFor="height">Height</Label>
-                            <Input
-                              id="height"
-                              defaultValue="25px"
-                              className="col-span-2 h-8"
-                            />
-                          </div>
-                          <div className="grid grid-cols-3 items-center gap-4">
-                            <Label htmlFor="maxHeight">Max. height</Label>
-                            <Input
-                              id="maxHeight"
-                              defaultValue="none"
-                              className="col-span-2 h-8"
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    </PopoverContent>
-                  </Popover>
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
+                  <TaskPriorityCombobox
+                    value={priority}
+                    onChange={(priority) => {
+                      console.log(priority);
+                      setPriority(priority);
+                      field.onChange(priority);
+                    }}
+                  />
                 </Field>
               )}
             />
@@ -495,28 +397,6 @@ export function CreateTaskDialog() {
                       setStatus(status);
                       field.onChange(status);
                     }}
-                    trigger={
-                      <Button
-                        {...field}
-                        id="task-deadline"
-                        aria-invalid={fieldState.invalid}
-                        size={"icon"}
-                        variant={"outline"}
-                        type="button"
-                      >
-                        {status ? (
-                          <div className="flex gap-2 items-center">
-                            {handleStatusIcon(status)}
-                            {handleStatusLabel(status)}
-                          </div>
-                        ) : (
-                          <div className="flex gap-2 items-center">
-                            <CircleDashed />
-                            <span>Status</span>
-                          </div>
-                        )}
-                      </Button>
-                    }
                   />
                   {fieldState.invalid && (
                     <FieldError errors={[fieldState.error]} />

@@ -10,7 +10,7 @@ export const assignedUserSchema = z.object({
 export const createTaskSchema = z.object({
   title: z.string().min(3, "Title is required"),
   description: z.string().optional(),
-  deadline: z.string().optional(),
+  deadline: z.date().optional(),
 
   priority: z.nativeEnum(TaskPriorityEnum),
   status: z.nativeEnum(TaskStatusEnum),
