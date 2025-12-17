@@ -9,38 +9,79 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ProtectedPlatformRouteImport } from './routes/_protected/platform'
+import { Route as ProtectedPlatformTasksRouteImport } from './routes/_protected/platform.tasks'
 
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProtectedPlatformRoute = ProtectedPlatformRouteImport.update({
+  id: '/_protected/platform',
+  path: '/platform',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProtectedPlatformTasksRoute = ProtectedPlatformTasksRouteImport.update({
+  id: '/tasks',
+  path: '/tasks',
+  getParentRoute: () => ProtectedPlatformRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/login': typeof LoginRoute
+  '/platform': typeof ProtectedPlatformRouteWithChildren
+  '/platform/tasks': typeof ProtectedPlatformTasksRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/login': typeof LoginRoute
+  '/platform': typeof ProtectedPlatformRouteWithChildren
+  '/platform/tasks': typeof ProtectedPlatformTasksRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/login': typeof LoginRoute
+  '/_protected/platform': typeof ProtectedPlatformRouteWithChildren
+  '/_protected/platform/tasks': typeof ProtectedPlatformTasksRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/login' | '/platform' | '/platform/tasks'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/login' | '/platform' | '/platform/tasks'
+  id:
+    | '__root__'
+    | '/'
+    | '/login'
+    | '/_protected/platform'
+    | '/_protected/platform/tasks'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  LoginRoute: typeof LoginRoute
+  ProtectedPlatformRoute: typeof ProtectedPlatformRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,11 +89,38 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_protected/platform': {
+      id: '/_protected/platform'
+      path: '/platform'
+      fullPath: '/platform'
+      preLoaderRoute: typeof ProtectedPlatformRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_protected/platform/tasks': {
+      id: '/_protected/platform/tasks'
+      path: '/tasks'
+      fullPath: '/platform/tasks'
+      preLoaderRoute: typeof ProtectedPlatformTasksRouteImport
+      parentRoute: typeof ProtectedPlatformRoute
+    }
   }
 }
 
+interface ProtectedPlatformRouteChildren {
+  ProtectedPlatformTasksRoute: typeof ProtectedPlatformTasksRoute
+}
+
+const ProtectedPlatformRouteChildren: ProtectedPlatformRouteChildren = {
+  ProtectedPlatformTasksRoute: ProtectedPlatformTasksRoute,
+}
+
+const ProtectedPlatformRouteWithChildren =
+  ProtectedPlatformRoute._addFileChildren(ProtectedPlatformRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  LoginRoute: LoginRoute,
+  ProtectedPlatformRoute: ProtectedPlatformRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

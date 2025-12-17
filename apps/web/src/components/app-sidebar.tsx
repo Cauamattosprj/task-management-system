@@ -216,6 +216,43 @@ const mockUsers = [
   { id: "3", name: "João" },
 ];
 
+export function handleStatusLabel(status: any): React.ReactNode {
+  switch (status) {
+    case "TODO":
+      return "To-Do";
+    case "IN_PROGRESS":
+      return "In progress";
+    case "REVIEW":
+      return "Review";
+    case "DONE":
+      return "Done";
+  }
+}
+
+export function handleStatusIcon(status: any): React.ReactNode {
+  switch (status) {
+    case "TODO":
+      return <Circle className="text-gray-600 size-4" />;
+    case "IN_PROGRESS":
+      return <Circle className="text-yellow-600 size-4" />;
+    case "REVIEW":
+      return <Circle className="text-blue-600 size-4" />;
+    case "DONE":
+      return <Circle className="text-green-600 size-4" />;
+  }
+}
+
+export function getInitialsFromUserName(name: string): React.ReactNode {
+    const parts = name.split(" ");
+    if (parts.length > 1) {
+      const firstNameInitial = parts[0][0];
+      const secondNameInitial = parts[1][0];
+      return firstNameInitial + secondNameInitial;
+    }
+
+    return parts[0][0] + parts[0][1];
+  }
+
 export function CreateTaskDialog() {
   const [assignedUsers, setAssignedUsers] = React.useState<
     { name: string; id: string }[] | undefined
@@ -241,45 +278,10 @@ export function CreateTaskDialog() {
 
   async function onSubmit(data: CreateTaskFormData) {
     console.log("Create task payload:", data);
-    await createTask(data)
+    await createTask(data);
   }
 
-  function getInitialsFromUserName(name: string): React.ReactNode {
-    const parts = name.split(" ");
-    if (parts.length > 1) {
-      const firstNameInitial = parts[0][0];
-      const secondNameInitial = parts[1][0];
-      return firstNameInitial + secondNameInitial;
-    }
-
-    return parts[0][0] + parts[0][1];
-  }
-
-  function handleStatusLabel(status: any): React.ReactNode {
-    switch (status) {
-      case "TODO":
-        return "To-Do";
-      case "IN_PROGRESS":
-        return "In progress";
-      case "REVIEW":
-        return "Review";
-      case "DONE":
-        return "Done";
-    }
-  }
-
-  function handleStatusIcon(status: any): React.ReactNode {
-    switch (status) {
-      case "TODO":
-        return <Circle className="text-gray-600" />;
-      case "IN_PROGRESS":
-        return <Circle className="text-yellow-600" />;
-      case "REVIEW":
-        return <Circle className="text-blue-600" />;
-      case "DONE":
-        return <Circle className="text-green-600" />;
-    }
-  }
+  
 
   return (
     <Dialog>
