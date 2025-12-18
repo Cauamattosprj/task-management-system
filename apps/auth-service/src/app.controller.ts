@@ -12,6 +12,10 @@ export class AppController {
   async refresh(@Payload() refreshToken: string) {
     return await this.appService.refresh(refreshToken);
   }
+  @MessagePattern('auth-logout')
+  async logout(@Payload() refreshToken: string) {
+    return await this.appService.logout(refreshToken);
+  }
 
   @MessagePattern('auth-login')
   async login(@Payload() loginDto: UserLoginDTO) {

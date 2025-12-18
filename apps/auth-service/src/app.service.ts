@@ -25,6 +25,36 @@ export class AppService {
     private readonly sessionRepo: Repository<Session>,
   ) {}
 
+  async logout(refreshToken: string) {
+    try {
+      const payload = this.jwtService.verify<RefreshTokenPayload>(
+        refreshToken,
+        { secret: process.env.JWT_REFRESH_SECRET },
+      );
+
+      const session = await this.sessionRepo.findOne({
+        where: { id: payload.sessionId },
+      });
+
+      if (!session) {
+        return { message: 'Session already invalidated' };
+      }
+
+      const isValid = await verify(session.refreshTokenHash, refreshToken);
+
+      if (!isValid) {
+        await this.sessionRepo.delete({ id: session.id });
+        return { message: 'Session invalidated' };
+      }
+
+      await this.sessionRepo.delete({ id: session.id });
+
+      return { message: 'Logout successful' };
+    } catch {
+      return { message: 'Logout successful' };
+    }
+  }
+
   async refresh(refreshToken: string) {
     console.log('Refresh method');
     console.log('Refresh token', refreshToken);

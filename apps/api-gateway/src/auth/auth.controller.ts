@@ -5,7 +5,9 @@ import {
   HttpStatus,
   Inject,
   Post,
+  Req,
   Res,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { UserLoginDTO } from '@dtos/user/login.dto';
 import { UserRegisterDTO } from '@dtos/user/register.dto';
@@ -13,7 +15,7 @@ import { PublicUserDTO } from '@dtos/user/public-user.dto';
 import { ClientProxy } from '@nestjs/microservices';
 import { AUTH_SERVICE } from '@constants';
 import { firstValueFrom } from 'rxjs';
-import type { Response } from 'express';
+import type { Request, Response } from 'express';
 
 @Controller('auth')
 export class AuthController {
@@ -22,21 +24,26 @@ export class AuthController {
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
   async refresh(
-    @Body() body: { refreshToken: string },
+    @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
   ) {
+    const refreshToken = req.cookies?.refreshToken;
+
+    if (!refreshToken) {
+      throw new UnauthorizedException('Refresh token missing');
+    }
     const authRefreshResponse: { accessToken: string; refreshToken: string } =
       await firstValueFrom(
         this.authClient.send<{ accessToken: string; refreshToken: string }>(
           'auth-refresh',
-          body.refreshToken,
+          refreshToken,
         ),
       );
 
     res.cookie('refreshToken', authRefreshResponse.refreshToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV == 'production' ? true : false,
-      sameSite: 'strict',
+      secure: false,
+      sameSite: 'lax',
       path: '/',
       maxAge: 1000 * 60 * 60 * 24 * 7,
     });
@@ -60,8 +67,8 @@ export class AuthController {
 
     res.cookie('refreshToken', authResponse.refreshToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV == 'production' ? true : false,
-      sameSite: 'strict',
+      secure: false,
+      sameSite: 'lax',
       path: '/',
       maxAge: 1000 * 60 * 60 * 24 * 7,
     });
@@ -69,6 +76,35 @@ export class AuthController {
     return {
       accessToken: authResponse.accessToken,
     };
+  }
+
+  @Post('logout')
+  @HttpCode(HttpStatus.OK)
+  async logout(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
+    const refreshToken = req.cookies?.refreshToken;
+
+    if (!refreshToken) {
+      throw new UnauthorizedException(
+        'Refresh token missing. User already logged out',
+      );
+    }
+    const authRefreshResponse: { accessToken: string; refreshToken: string } =
+      await firstValueFrom(
+        this.authClient.send<{ accessToken: string; refreshToken: string }>(
+          'auth-logout',
+          refreshToken,
+        ),
+      );
+
+    res.cookie('refreshToken', '', {
+      httpOnly: true,
+      secure: false,
+      sameSite: 'lax',
+      path: '/',
+      maxAge: 1000 * 60 * 60 * 24 * 7,
+    });
+
+    return authRefreshResponse;
   }
 
   @Post('register')
