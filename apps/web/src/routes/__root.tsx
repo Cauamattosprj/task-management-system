@@ -9,7 +9,7 @@ import { TanStackDevtools } from "@tanstack/react-devtools";
 import Header from "../components/Header";
 import { AppSidebar } from "@/components/app-sidebar";
 import { SidebarProvider } from "@/components/ui/sidebar";
-import type { AuthContext } from "@/lib/auth";
+import type { AuthContext } from "@/store/auth.store";
 
 type RouterContext = {
   auth: AuthContext;

@@ -8,11 +8,12 @@ import { routeTree } from "./routeTree.gen";
 import "./styles.css";
 import reportWebVitals from "./reportWebVitals.ts";
 import { AppRouter } from "./AppRouter.tsx";
+import { useAuth } from "./store/auth.store.ts";
 
 // Create a new router instance
 export const router = createRouter({
   routeTree,
-  context: { auth: undefined! },
+  context: {},
   defaultPreload: "intent",
   scrollRestoration: true,
   defaultStructuralSharing: true,
