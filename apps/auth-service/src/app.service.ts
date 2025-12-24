@@ -122,6 +122,7 @@ export class AppService {
       return {
         accessToken,
         refreshToken: newRefreshToken,
+        user,
       };
     } catch (error) {
       Logger.error('Error on payload', error);
