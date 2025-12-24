@@ -16,6 +16,7 @@ import {
   Users,
   Circle,
   ChevronsUpDownIcon,
+  LucideWine,
 } from "lucide-react";
 
 import {
@@ -86,6 +87,7 @@ import { TaskStatusCombobox } from "./task-status-combobox";
 import { TaskPriorityCombobox } from "./task-priority-combobox";
 import { TaskDeadlinePicker } from "./task-deadline-picker";
 import { createTask } from "@/lib/fetch/crud/task/create-task";
+import { useTasksStore } from "@/store/tasks.store";
 
 // This is sample data
 const data = {
@@ -101,120 +103,8 @@ const data = {
       icon: CheckSquare,
       isActive: true,
     },
-    {
-      title: "Drafts",
-      url: "#",
-      icon: File,
-      isActive: false,
-    },
-    {
-      title: "Sent",
-      url: "#",
-      icon: Send,
-      isActive: false,
-    },
-    {
-      title: "Junk",
-      url: "#",
-      icon: ArchiveX,
-      isActive: false,
-    },
-    {
-      title: "Trash",
-      url: "#",
-      icon: Trash2,
-      isActive: false,
-    },
-  ],
-  mails: [
-    {
-      name: "William Smith",
-      email: "williamsmith@example.com",
-      subject: "Meeting Tomorrow",
-      date: "09:34 AM",
-      teaser:
-        "Hi team, just a reminder about our meeting tomorrow at 10 AM.\nPlease come prepared with your project updates.",
-    },
-    {
-      name: "Alice Smith",
-      email: "alicesmith@example.com",
-      subject: "Re: Project Update",
-      date: "Yesterday",
-      teaser:
-        "Thanks for the update. The progress looks great so far.\nLet's schedule a call to discuss the next steps.",
-    },
-    {
-      name: "Bob Johnson",
-      email: "bobjohnson@example.com",
-      subject: "Weekend Plans",
-      date: "2 days ago",
-      teaser:
-        "Hey everyone! I'm thinking of organizing a team outing this weekend.\nWould you be interested in a hiking trip or a beach day?",
-    },
-    {
-      name: "Emily Davis",
-      email: "emilydavis@example.com",
-      subject: "Re: Question about Budget",
-      date: "2 days ago",
-      teaser:
-        "I've reviewed the budget numbers you sent over.\nCan we set up a quick call to discuss some potential adjustments?",
-    },
-    {
-      name: "Michael Wilson",
-      email: "michaelwilson@example.com",
-      subject: "Important Announcement",
-      date: "1 week ago",
-      teaser:
-        "Please join us for an all-hands meeting this Friday at 3 PM.\nWe have some exciting news to share about the company's future.",
-    },
-    {
-      name: "Sarah Brown",
-      email: "sarahbrown@example.com",
-      subject: "Re: Feedback on Proposal",
-      date: "1 week ago",
-      teaser:
-        "Thank you for sending over the proposal. I've reviewed it and have some thoughts.\nCould we schedule a meeting to discuss my feedback in detail?",
-    },
-    {
-      name: "David Lee",
-      email: "davidlee@example.com",
-      subject: "New Project Idea",
-      date: "1 week ago",
-      teaser:
-        "I've been brainstorming and came up with an interesting project concept.\nDo you have time this week to discuss its potential impact and feasibility?",
-    },
-    {
-      name: "Olivia Wilson",
-      email: "oliviawilson@example.com",
-      subject: "Vacation Plans",
-      date: "1 week ago",
-      teaser:
-        "Just a heads up that I'll be taking a two-week vacation next month.\nI'll make sure all my projects are up to date before I leave.",
-    },
-    {
-      name: "James Martin",
-      email: "jamesmartin@example.com",
-      subject: "Re: Conference Registration",
-      date: "1 week ago",
-      teaser:
-        "I've completed the registration for the upcoming tech conference.\nLet me know if you need any additional information from my end.",
-    },
-    {
-      name: "Sophia White",
-      email: "sophiawhite@example.com",
-      subject: "Team Dinner",
-      date: "1 week ago",
-      teaser:
-        "To celebrate our recent project success, I'd like to organize a team dinner.\nAre you available next Friday evening? Please let me know your preferences.",
-    },
   ],
 };
-
-const mockUsers = [
-  { id: "1", name: "Alexey" },
-  { id: "2", name: "Maria" },
-  { id: "3", name: "João" },
-];
 
 export function handleStatusLabel(status: any): React.ReactNode {
   switch (status) {
@@ -243,15 +133,16 @@ export function handleStatusIcon(status: any): React.ReactNode {
 }
 
 export function getInitialsFromUserName(name: string): React.ReactNode {
-    const parts = name.split(" ");
-    if (parts.length > 1) {
-      const firstNameInitial = parts[0][0];
-      const secondNameInitial = parts[1][0];
-      return firstNameInitial + secondNameInitial;
-    }
-
-    return parts[0][0] + parts[0][1];
+  console.log("getInitialsFromUserName: ", name);
+  const parts = name.split(" ");
+  if (parts.length > 1) {
+    const firstNameInitial = parts[0][0];
+    const secondNameInitial = parts[1][0];
+    return firstNameInitial + secondNameInitial;
   }
+
+  return parts[0][0] + parts[0][1];
+}
 
 export function CreateTaskDialog() {
   const [assignedUsers, setAssignedUsers] = React.useState<
@@ -259,32 +150,35 @@ export function CreateTaskDialog() {
   >(undefined);
   const [status, setStatus] = React.useState<TaskStatusEnum>();
   const [priority, setPriority] = React.useState<TaskPriorityEnum>();
-
-  React.useEffect(() => {
-    console.log("Modificado ", assignedUsers);
-  }, [assignedUsers]);
+  const [createTaskDialogOpen, setCreateTaskDialogOpen] =
+    React.useState<boolean>(false);
 
   const hasAssignedUsers = assignedUsers && assignedUsers.length > 0;
   const hasMultipleUsers = assignedUsers && assignedUsers.length > 1;
+
+  const tasksState = useTasksStore();
 
   const form = useForm<CreateTaskFormData>({
     resolver: zodResolver(createTaskSchema),
     defaultValues: {
       priority: TaskPriorityEnum.MEDIUM,
       status: TaskStatusEnum.TODO,
-      assignedUsers: [],
+      assignedUsersIds: [],
     },
   });
 
   async function onSubmit(data: CreateTaskFormData) {
     console.log("Create task payload:", data);
-    await createTask(data);
+    const res = await createTask(data);
+    setCreateTaskDialogOpen(!createTaskDialogOpen);
+    await tasksState.loadAllTasks();
   }
 
-  
-
   return (
-    <Dialog>
+    <Dialog
+      open={createTaskDialogOpen}
+      onOpenChange={() => setCreateTaskDialogOpen(!createTaskDialogOpen)}
+    >
       <DialogTrigger asChild>
         <Button size="sm" className="justify-start gap-2">
           <Plus size={16} />
@@ -410,7 +304,7 @@ export function CreateTaskDialog() {
 
             {/* ASSIGNED USERS */}
             <Controller
-              name="assignedUsers"
+              name="assignedUsersIds"
               control={form.control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
@@ -418,7 +312,7 @@ export function CreateTaskDialog() {
                     trigger={
                       <Button
                         {...field}
-                        id="task-deadline"
+                        id="assignedUsersIds"
                         aria-invalid={fieldState.invalid}
                         size={"icon"}
                         variant={"outline"}
@@ -467,7 +361,9 @@ export function CreateTaskDialog() {
                     }
                     setAssignedUsers={(users) => {
                       setAssignedUsers(users);
-                      field.onChange(users);
+                      const ids = users?.map((u) => u.id) ?? [];
+
+                      field.onChange(ids);
                     }}
                   />
                   {fieldState.invalid && (
@@ -581,9 +477,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <CreateTaskDialog />
         </SidebarHeader>
         <SidebarContent>
-          <SidebarGroup className="px-0">
+          <SidebarGroup>
             <SidebarGroupContent>
-              {mails.map((mail) => (
+              {/* {mails.map((mail) => (
                 <a
                   href="#"
                   key={mail.email}
@@ -598,7 +494,20 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                     {mail.teaser}
                   </span>
                 </a>
-              ))}
+              ))} */}
+              <div className="flex flex-col gap-2 text-center justify-center items-center">
+                <div className="flex flex-col">
+                  <span>
+                    Your tasks notifications will be displayed here soon
+                  </span>
+                  <span className="text-muted-foreground">
+                    In our next updates these feature will be available
+                  </span>
+                </div>
+                <div className="bg-muted rounded-full text-muted-foreground border border-muted-foreground p-2">
+                  <LucideWine />
+                </div>
+              </div>
             </SidebarGroupContent>
           </SidebarGroup>
         </SidebarContent>
