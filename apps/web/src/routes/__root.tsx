@@ -5,10 +5,8 @@ import {
 } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import { TanStackDevtools } from "@tanstack/react-devtools";
+import { Toaster } from "@/components/ui/sonner";
 
-import Header from "../components/Header";
-import { AppSidebar } from "@/components/app-sidebar";
-import { SidebarProvider } from "@/components/ui/sidebar";
 import type { AuthContext } from "@/store/auth.store";
 
 type RouterContext = {
@@ -18,6 +16,7 @@ type RouterContext = {
 export const Route = createRootRouteWithContext<RouterContext>()({
   component: () => (
     <>
+      <Toaster />
       <Outlet />
       <TanStackDevtools
         config={{
