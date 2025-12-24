@@ -1,6 +1,5 @@
 import { JwtService } from '@nestjs/jwt';
 import {
-  MessageBody,
   OnGatewayConnection,
   OnGatewayDisconnect,
   SubscribeMessage,
