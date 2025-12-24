@@ -1,16 +1,14 @@
+import { getAllUsers } from "@/lib/fetch/crud/user/get-all-users";
 import type { LoginFormData } from "@/schemas/login-schema";
+import type { UserDTO } from "@/types/user.dto";
+import { UserMinus } from "lucide-react";
 import { create } from "zustand";
 
 const API_URL = import.meta.env.VITE_BACKEND_API_URL;
 
-interface PublicUserDTO {
-  username: string;
-  email: string;
-  password: string;
-}
-
 interface AuthState {
-  user: PublicUserDTO | null;
+  user: UserDTO | null;
+  allUsers: UserDTO[] | null;
   accessToken: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
@@ -22,10 +20,12 @@ interface AuthState {
   refresh: () => Promise<void>;
 
   getAccessToken: () => string | null;
+  getUser: () => UserDTO | null;
 }
 
 export const useAuth = create<AuthState>((set, get) => ({
   user: null,
+  allUsers: null,
   accessToken: null,
   isAuthenticated: false,
   isLoading: true,
@@ -49,13 +49,19 @@ export const useAuth = create<AuthState>((set, get) => ({
         return;
       }
 
-      const { accessToken, user } = await refreshRes.json();
+      const { user, accessToken } = await refreshRes.json();
 
       set({
         user,
         accessToken,
         isAuthenticated: true,
         isLoading: false,
+      });
+
+      const allUsers = await getAllUsers();
+
+      set({
+        allUsers,
       });
     } catch {
       set({
@@ -135,6 +141,10 @@ export const useAuth = create<AuthState>((set, get) => ({
   },
 
   getAccessToken: () => get().accessToken,
+  getUser: () => {
+    console.log(get().user);
+    return get().user;
+  },
 }));
 
 export type AuthContext = ReturnType<typeof useAuth>;
