@@ -1,0 +1,20 @@
+{
+  "name": "@collaborative-task-management/types",
+  "version": "1.0.0",
+  "description": "Type definitions for collaborative task management system",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "jest"
+  },
+  "keywords": [
+    "types",
+    "task-management"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}

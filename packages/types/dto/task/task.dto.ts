@@ -15,12 +15,20 @@ export class TaskDTO {
   @IsNotEmpty()
   id: string;
 
+  @IsUUID()
+  @IsNotEmpty()
+  createdBy: string;
+
   @IsString()
   @IsNotEmpty()
   title: string;
 
   @IsString()
   description: string;
+
+  @IsDateString()
+  @IsOptional()
+  createdAt: string;
 
   @IsDateString()
   @IsOptional()

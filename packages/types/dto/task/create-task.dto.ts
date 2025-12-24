@@ -7,4 +7,5 @@ export class CreateTaskDTO extends PickType(TaskDTO, [
   "priority",
   "description",
   "deadline",
+  "assignedUsersIds"
 ]) {}
