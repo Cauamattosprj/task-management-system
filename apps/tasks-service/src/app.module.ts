@@ -4,8 +4,6 @@ import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { Task } from './task.entity';
-import TaskStatusEnum from '@enums/task/TaskStatusEnum';
-import TaskPriorityEnum from '@enums/task/TaskPriorityEnum';
 import { TaskLog } from './task-log.entity';
 import { NOTIFICATIONS_SERVICE, USERS_SERVICE } from '@constants';
 import { ClientsModule, Transport } from '@nestjs/microservices';

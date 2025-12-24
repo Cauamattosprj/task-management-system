@@ -19,6 +19,9 @@ export class Task {
   @Column()
   title: string;
 
+  @Column('uuid')
+  createdBy: string;
+
   @Column()
   description: string;
 

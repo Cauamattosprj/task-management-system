@@ -221,7 +221,11 @@ export class AppService {
   }
 
   async create(createTaskDto: CreateTaskDTO, userId: string) {
-    const savedTask = await this.taskRepository.save(createTaskDto);
+    const savedTask = await this.taskRepository.save({
+      ...createTaskDto,
+      createdBy: userId,
+    });
+    Logger.log('createTaskDto: ', { createTaskDto, userId });
 
     if (savedTask) {
       const log = await this.logRepository.save({
