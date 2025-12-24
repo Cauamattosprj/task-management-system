@@ -4,7 +4,6 @@ import { User } from './user.entity';
 import { Repository } from 'typeorm';
 import { UserRegisterDTO } from '@dto/user/register.dto';
 import { UserDTO } from '@dto/user/user.dto';
-import { instanceToPlain } from 'class-transformer';
 
 @Injectable()
 export class UserService {
