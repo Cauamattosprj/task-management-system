@@ -3,11 +3,13 @@ import { router } from "./main";
 import { useAuth } from "@/store/auth.store";
 import { useEffect } from "react";
 import { SessionSkeleton } from "./components/session-skeleton";
+import { useWebSocket } from "./hooks/use-web-socket";
 
 export function AppRouter() {
   const auth = useAuth();
   const hydrate = useAuth((s) => s.hydrate);
   const isLoading = useAuth((s) => s.isLoading);
+  useWebSocket();
 
   useEffect(() => {
     hydrate();
