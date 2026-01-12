@@ -19,14 +19,9 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { useAuth } from "@/store/auth.store";
 
-const users = [
-  { id: "1", name: "Next.js" },
-  { id: "2", name: "SvelteKit" },
-  { id: "3", name: "Nuxt.js" },
-  { id: "4", name: "Remix" },
-  { id: "5", name: "Astro" },
-];
+const { allUsers } = useAuth.getState();
 
 type User = { id: string; name: string };
 
@@ -66,29 +61,31 @@ export function AssignUsersCombobox({
           <CommandList>
             <CommandEmpty>No user found.</CommandEmpty>
             <CommandGroup>
-              {users.map((user) => (
-                <CommandItem
-                  key={user.id}
-                  onSelect={() => {
-                    setSelectedUsers((prev) => {
-                      const updated = isSelected(user.id)
-                        ? prev.filter((u) => u.id !== user.id)
-                        : [...prev, user];
+              {allUsers != null
+                ? allUsers.map((user) => (
+                    <CommandItem
+                      key={user.id}
+                      onSelect={() => {
+                        setSelectedUsers((prev) => {
+                          const updated = isSelected(user.id)
+                            ? prev.filter((u) => u.id !== user.id)
+                            : [...prev, user];
 
-                      setAssignedUsers(updated);
-                      return updated;
-                    });
-                  }}
-                >
-                  <CheckIcon
-                    className={cn(
-                      "mr-2 h-4 w-4",
-                      isSelected(user.id) ? "opacity-100" : "opacity-0"
-                    )}
-                  />
-                  {user.name}
-                </CommandItem>
-              ))}
+                          setAssignedUsers(updated);
+                          return updated;
+                        });
+                      }}
+                    >
+                      <CheckIcon
+                        className={cn(
+                          "mr-2 h-4 w-4",
+                          isSelected(user.id) ? "opacity-100" : "opacity-0"
+                        )}
+                      />
+                      {user.username}
+                    </CommandItem>
+                  ))
+                : ""}
             </CommandGroup>
           </CommandList>
         </Command>

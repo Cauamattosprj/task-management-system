@@ -146,7 +146,7 @@ export function getInitialsFromUserName(name: string): React.ReactNode {
 
 export function CreateTaskDialog() {
   const [assignedUsers, setAssignedUsers] = React.useState<
-    { name: string; id: string }[] | undefined
+    { username: string; id: string }[] | undefined
   >(undefined);
   const [status, setStatus] = React.useState<TaskStatusEnum>();
   const [priority, setPriority] = React.useState<TaskPriorityEnum>();
@@ -333,7 +333,7 @@ export function CreateTaskDialog() {
                                   <AvatarImage src="htts://github.com/shadcn.png" />
                                   <AvatarFallback>
                                     <span>
-                                      {getInitialsFromUserName(user.name)}
+                                      {getInitialsFromUserName(user.username)}
                                     </span>
                                   </AvatarFallback>
                                 </Avatar>
@@ -348,13 +348,15 @@ export function CreateTaskDialog() {
                               <AvatarImage src="htts://github.com/shadcn.png" />
                               <AvatarFallback>
                                 <span>
-                                  {getInitialsFromUserName(
-                                    assignedUsers[0].name
-                                  )}
+                                  {assignedUsers.length != undefined
+                                    ? getInitialsFromUserName(
+                                        assignedUsers[0].username
+                                      )
+                                    : ""}
                                 </span>
                               </AvatarFallback>
                             </Avatar>
-                            <span>{assignedUsers[0].name}</span>
+                            <span>{assignedUsers[0].username}</span>
                           </div>
                         )}
                       </Button>
