@@ -116,13 +116,13 @@ const CollapsibleTasksSection = () => {
                       <div className="w-8 text-left">
                         {handlePriorityIcons({
                           priority: task.priority,
-                          size: "md",
+                          size: "lg",
                         })}
                       </div>
-                      <div className="truncate w-16 text-left text-muted-foreground">
+                      <div className="truncate w-64 text-left text-muted-foreground">
                         {task.id}
                       </div>
-                      <div className="truncate w-32 text-left">
+                      <div className="truncate w-64 text-left">
                         {task.title}
                       </div>
                       <div className="truncate w-8 text-left">
