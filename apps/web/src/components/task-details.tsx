@@ -5,6 +5,8 @@ import { Separator } from "./ui/separator";
 import { updateTask } from "@/lib/fetch/crud/task/update-task";
 import { Cloud, Check, CloudCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { TaskSidebar } from "./task-sidebar";
+import { SidebarProvider } from "./ui/sidebar";
 
 type UpdateStatus = "idle" | "saving" | "saved";
 
@@ -40,7 +42,7 @@ export default function TaskDetails({ task }: { task: TaskDTO }) {
   }
 
   return (
-    <div className="flex flex-col h-full space-y-4">
+    <div className="h-full">
       <div>
         <div className="flex justify-between">
           <span className="text-sm text-muted-foreground">{task.id}</span>
@@ -55,28 +57,32 @@ export default function TaskDetails({ task }: { task: TaskDTO }) {
             <CloudCheck
               className={cn(
                 "absolute inset-0 transition-all duration-500 opacity-0 scale-100 text-green-500",
-                updateStatus === "saved" && "opacity-100",
+                updateStatus === "saved" && "opacity-100"
               )}
             />
           </div>
         </div>
         <Separator />
       </div>
+      <div className="flex justify-between h-full">
+        <div className="flex flex-col h-full space-y-4">
+          <div className="h-full p-6 space-y-4">
+            <input
+              placeholder="Task title"
+              className="text-2xl w-full focus-visible:outline-0"
+              value={title}
+              onChange={(e) => handleTitleChange(e.target.value)}
+            />
 
-      <div className="h-full p-6 space-y-4">
-        <input
-          placeholder="Task title"
-          className="text-2xl w-full focus-visible:outline-0"
-          value={title}
-          onChange={(e) => handleTitleChange(e.target.value)}
-        />
-
-        <textarea
-          placeholder="The description of your task..."
-          className="w-full h-full resize-none focus-visible:outline-0"
-          value={description}
-          onChange={(e) => handleDescriptionChange(e.target.value)}
-        />
+            <textarea
+              placeholder="The description of your task..."
+              className="w-full h-full resize-none focus-visible:outline-0"
+              value={description}
+              onChange={(e) => handleDescriptionChange(e.target.value)}
+            />
+          </div>
+        </div>
+        <TaskSidebar />
       </div>
     </div>
   );
