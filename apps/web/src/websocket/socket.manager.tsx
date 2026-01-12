@@ -52,7 +52,19 @@ class SocketManager {
     });
 
     this.socket.on("task:updated", (task) => {
-      toast("Task updated");
+      console.log(task);
+      toast("Task has been updated", {
+        description: (
+          <div className="flex items-center gap-2">
+            <span>{task.title}</span>
+            <span>{task.createdAt}</span>
+          </div>
+        ),
+        action: {
+          label: "Undo",
+          onClick: () => console.log("Undo"),
+        },
+      });
     });
 
     this.socket.on("comment:new", ({ id }) => {
