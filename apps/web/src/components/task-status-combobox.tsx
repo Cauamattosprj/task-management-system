@@ -49,7 +49,7 @@ export function TaskStatusCombobox({
             variant="outline"
             role="combobox"
             aria-expanded={open}
-            className="w-[240px] justify-between"
+            className=" justify-between"
           >
             {selected ? selected.label : "Select status"}
             <ChevronsUpDownIcon className="ml-2 h-4 w-4 opacity-50" />
