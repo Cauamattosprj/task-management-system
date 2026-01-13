@@ -23,7 +23,7 @@ import { useAuth } from "@/store/auth.store";
 
 const { allUsers } = useAuth.getState();
 
-type User = { id: string; name: string };
+export type User = { id: string; name: string };
 
 export function AssignUsersCombobox({
   trigger,

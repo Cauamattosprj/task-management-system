@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { AssignUsersCombobox } from "./assign-users-combobox";
+import { AssignUsersCombobox, type User } from "./assign-users-combobox";
 import { TaskDeadlinePicker } from "./task-deadline-picker";
 import { Button } from "./ui/button";
 import { TaskStatusCombobox } from "./task-status-combobox";
@@ -7,21 +7,22 @@ import { TaskPriorityCombobox } from "./task-priority-combobox";
 import { cn } from "@/lib/utils";
 
 export function TaskSidebar({ open }: { open: boolean }) {
-  const [assignedUsers, setAssignedUsers] = useState();
+  const [assignedUsers, setAssignedUsers] = useState<User[]>();
   const [status, setStatus] = useState<TaskStatusEnum | undefined>();
   const [priority, setPriority] = useState<TaskStatusPriority | undefined>();
+  const [deadline, setDeadline] = useState<TaskStatusPriority | undefined>();
 
   function handleStatusChange(status: TaskStatusEnum) {
     setStatus(status);
     console.log("Novo status:", status);
   }
 
-  function handleDeadlineChange(): (date: Date | undefined) => void {
-    throw new Error("Function not implemented.");
+  function handleDeadlineChange(deadline): (date: Date | undefined) => void {
+    setDeadline(deadline)
   }
 
   function handlePriorityChange(priority): (priority: string) => void {
-    setPriority(priority)
+    setPriority(priority);
   }
 
   return (
@@ -40,8 +41,10 @@ export function TaskSidebar({ open }: { open: boolean }) {
           />
 
           <span className="text-muted-foreground">Priority</span>
-          <TaskPriorityCombobox onChange={(priority) => handlePriorityChange(priority)} 
-          value={priority} />
+          <TaskPriorityCombobox
+            onChange={(priority) => handlePriorityChange(priority)}
+            value={priority}
+          />
 
           <span className="text-muted-foreground">Created By</span>
           <Button variant="ghost" className="w-full justify-start">
@@ -49,10 +52,10 @@ export function TaskSidebar({ open }: { open: boolean }) {
           </Button>
 
           <span className="text-muted-foreground">Assignees</span>
-          <AssignUsersCombobox setAssignedUsers={setAssignedUsers} />
+          <AssignUsersCombobox setAssignedUsers={setAssignedUsers}  />
 
           <span className="text-muted-foreground">Deadline</span>
-          <TaskDeadlinePicker onChange={handleDeadlineChange} />
+          <TaskDeadlinePicker onChange={handleDeadlineChange} value={deadline} />
         </div>
       </div>
     </div>
