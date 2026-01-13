@@ -8,16 +8,20 @@ import { cn } from "@/lib/utils";
 
 export function TaskSidebar({ open }: { open: boolean }) {
   const [assignedUsers, setAssignedUsers] = useState();
+  const [status, setStatus] = useState<TaskStatusEnum | undefined>();
+  const [priority, setPriority] = useState<TaskStatusPriority | undefined>();
+
+  function handleStatusChange(status: TaskStatusEnum) {
+    setStatus(status);
+    console.log("Novo status:", status);
+  }
+
   function handleDeadlineChange(): (date: Date | undefined) => void {
     throw new Error("Function not implemented.");
   }
 
-  function handleStatusChange(): (status) => void {
-    throw new Error("Function not implemented.");
-  }
-
-  function handlePriorityChange(): (priority) => void {
-    throw new Error("Function not implemented.");
+  function handlePriorityChange(priority): (priority: string) => void {
+    setPriority(priority)
   }
 
   return (
@@ -30,10 +34,14 @@ export function TaskSidebar({ open }: { open: boolean }) {
       >
         <div className="grid grid-cols-[120px_1fr] gap-y-2 items-center">
           <span className="text-muted-foreground">Status</span>
-          <TaskStatusCombobox onChange={handleStatusChange} />
+          <TaskStatusCombobox
+            value={status}
+            onChange={(status) => handleStatusChange(status)}
+          />
 
           <span className="text-muted-foreground">Priority</span>
-          <TaskPriorityCombobox onChange={handlePriorityChange} />
+          <TaskPriorityCombobox onChange={(priority) => handlePriorityChange(priority)} 
+          value={priority} />
 
           <span className="text-muted-foreground">Created By</span>
           <Button variant="ghost" className="w-full justify-start">
