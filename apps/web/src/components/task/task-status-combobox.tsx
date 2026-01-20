@@ -57,7 +57,7 @@ export function TaskStatusCombobox({
         )}
       </PopoverTrigger>
 
-      <PopoverContent className="w-[240px] p-0">
+      <PopoverContent className="max-w-[240px] p-0">
         <Command>
           <CommandList>
             <CommandEmpty>No status found.</CommandEmpty>

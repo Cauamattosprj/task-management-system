@@ -1,5 +1,3 @@
-"use client";
-
 import * as React from "react";
 import { useState } from "react";
 import { CheckIcon, ChevronsUpDownIcon } from "lucide-react";
@@ -26,7 +24,7 @@ const { allUsers } = useAuth.getState();
 
 export type User = { id: string; name: string };
 
-export function AssignUsersCombobox({
+export function TaskAssignUsersCombobox({
   trigger,
   onChange,
   value = [],

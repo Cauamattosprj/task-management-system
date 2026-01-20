@@ -1,5 +1,5 @@
-import { LoginForm } from "@/components/login-form";
-import { RegisterForm } from "@/components/register-form";
+import { LoginForm } from "@/components/form/login-form";
+import { RegisterForm } from "@/components/form/register-form";
 import { Button } from "@/components/ui/button";
 import { createFileRoute, redirect } from "@tanstack/react-router";
 

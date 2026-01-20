@@ -25,7 +25,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 
-import { NavUser } from "@/components/nav-user";
+import { NavUser } from "@/components/nav/nav-user";
 import { Label } from "@/components/ui/label";
 import {
   Sidebar,
@@ -41,7 +41,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { Switch } from "@/components/ui/switch";
-import { Button } from "./ui/button";
+import { Button } from "../ui/button";
 import {
   Dialog,
   DialogContent,
@@ -78,14 +78,14 @@ import {
   FieldLabel,
   FieldLegend,
   FieldSet,
-} from "./ui/field";
+} from "../ui/field";
 import { ParseStatus, z } from "zod";
-import { Separator } from "./ui/separator";
-import { AssignUsersCombobox } from "./assign-users-combobox";
+import { Separator } from "../ui/separator";
+import { TaskAssignUsersCombobox } from "@components/task/task-assign-users-combobox";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { TaskStatusCombobox } from "./task-status-combobox";
-import { TaskPriorityCombobox } from "./task-priority-combobox";
-import { TaskDeadlinePicker } from "./task-deadline-picker";
+import { TaskStatusCombobox } from "@components/task/task-status-combobox";
+import { TaskPriorityCombobox } from "@components/task/task-priority-combobox";
+import { TaskDeadlinePicker } from "@components/task/task-deadline-picker";
 import { createTask } from "@/lib/fetch/crud/task/create-task";
 import { useTasksStore } from "@/store/tasks.store";
 
@@ -350,7 +350,7 @@ export function CreateTaskDialog() {
                                 <span>
                                   {assignedUsers.length != undefined
                                     ? getInitialsFromUserName(
-                                        assignedUsers[0].username
+                                        assignedUsers[0].username,
                                       )
                                     : ""}
                                 </span>
@@ -439,8 +439,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                         setMails(
                           mail.slice(
                             0,
-                            Math.max(5, Math.floor(Math.random() * 10) + 1)
-                          )
+                            Math.max(5, Math.floor(Math.random() * 10) + 1),
+                          ),
                         );
                         setOpen(true);
                       }}

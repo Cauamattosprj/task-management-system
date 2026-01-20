@@ -1,4 +1,4 @@
-import CollapsibleTasksSection from "@/components/collapsible-tasks-section";
+import CollapsibleTasksSection from "@/components/task/collapsible-tasks-section";
 import { createFileRoute, Outlet } from "@tanstack/react-router";
 import { ChevronRight, Circle } from "lucide-react";
 
@@ -10,7 +10,7 @@ function RouteComponent() {
   return (
     <div className="">
       <CollapsibleTasksSection />
-      <Outlet/>
+      <Outlet />
     </div>
   );
 }

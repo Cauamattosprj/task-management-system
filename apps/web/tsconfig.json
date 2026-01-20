@@ -25,7 +25,8 @@
       "@/*": ["./src/*"],
       "@dtos/*": ["../../packages/types/dto/*"],
       "@enums/*": ["../../packages/types/enums/*"],
-      "@constants": ["../../packages/types/constants/index"]
+      "@constants": ["../../packages/types/constants/index"],
+      "@components/*": ["./src/components/*"],
     }
   }
 }

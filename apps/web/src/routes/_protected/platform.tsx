@@ -1,4 +1,4 @@
-import { AppSidebar } from "@/components/app-sidebar";
+import { AppSidebar } from "@/components/nav/app-sidebar";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 
@@ -17,7 +17,7 @@ function RouteComponent() {
   return (
     <SidebarProvider>
       <AppSidebar />
-      <div className="p-0 w-full">
+      <div className="w-full">
         <Outlet />
       </div>
     </SidebarProvider>

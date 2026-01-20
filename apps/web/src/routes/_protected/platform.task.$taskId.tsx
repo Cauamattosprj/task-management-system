@@ -1,5 +1,5 @@
-import { SessionSkeleton } from "@/components/session-skeleton";
-import TaskDetails from "@/components/task-details";
+import { SessionSkeleton } from "@/components/skeleton/session-skeleton";
+import TaskDetails from "@/components/task/task-details";
 import { getTaskById } from "@/lib/fetch/crud/task/get-task-by-id";
 import type { TaskDTO } from "@/types/task.dto";
 import { createFileRoute } from "@tanstack/react-router";

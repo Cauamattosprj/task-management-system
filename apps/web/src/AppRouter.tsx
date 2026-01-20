@@ -2,7 +2,7 @@ import { RouterProvider } from "@tanstack/react-router";
 import { router } from "./main";
 import { useAuth } from "@/store/auth.store";
 import { useEffect } from "react";
-import { SessionSkeleton } from "./components/session-skeleton";
+import { SessionSkeleton } from "./components/skeleton/session-skeleton";
 import { useWebSocket } from "./hooks/use-web-socket";
 
 export function AppRouter() {

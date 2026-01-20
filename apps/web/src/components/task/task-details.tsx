@@ -1,28 +1,56 @@
 import { useCallback, useState } from "react";
 import debounce from "lodash/debounce";
 import type { TaskDTO } from "@/types/task.dto";
-import { Separator } from "./ui/separator";
+import { Separator } from "@components/ui/separator";
 import { updateTask } from "@/lib/fetch/crud/task/update-task";
 import { Cloud, Check, CloudCheck, Sidebar } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { TaskSidebar } from "./task-sidebar";
-import { SidebarProvider } from "./ui/sidebar";
-import { Button } from "./ui/button";
+import { TaskSidebar } from "@components/task/task-sidebar";
+import { SidebarProvider } from "@components/ui/sidebar";
+import { Button } from "@components/ui/button";
 
 type UpdateStatus = "idle" | "saving" | "saved";
+
+export function TaskNavbar({
+  task,
+  updateStatus,
+}: {
+  task: TaskDTO;
+  updateStatus: UpdateStatus;
+}) {
+  return (
+    <div className="flex gap-4 justify-center items-center">
+      <span className="text-sm text-muted-foreground">{task.id}</span>
+      <div className="relative w-6 h-6">
+        <Cloud
+          className={cn(
+            "text-muted-foreground absolute opacity-100 inset-0 transition-all duration-500",
+            updateStatus === "saving" && "opacity-100 animate-bounce",
+            updateStatus === "saved" && "opacity-0",
+          )}
+        />
+        <CloudCheck
+          className={cn(
+            "absolute inset-0 transition-all duration-500 opacity-0 scale-100 text-green-500",
+            updateStatus === "saved" && "opacity-100",
+          )}
+        />
+      </div>
+    </div>
+  );
+}
 
 export default function TaskDetails({ task }: { task: TaskDTO }) {
   const [title, setTitle] = useState(task.title);
   const [description, setDescription] = useState(task.description ?? "");
   const [updateStatus, setUpdateStatus] = useState<UpdateStatus>("idle");
+
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
 
   const debouncedUpdate = useCallback(
     debounce(async (id: string, field: any) => {
       setUpdateStatus("saving");
-      console.log(id, field);
       const updated = await updateTask(id, field);
-      console.log(updated);
       setTimeout(() => {
         setUpdateStatus("saved");
         setTimeout(() => {
@@ -30,7 +58,7 @@ export default function TaskDetails({ task }: { task: TaskDTO }) {
         }, 1500);
       }, 1500);
     }, 1200),
-    []
+    [],
   );
 
   function handleTitleChange(value: string) {
@@ -44,27 +72,11 @@ export default function TaskDetails({ task }: { task: TaskDTO }) {
   }
 
   return (
-    <div className="h-full ">
+    <div className="h-full">
       <div>
-        <div className="flex justify-between p-2">
-          <div className="flex gap-4 justify-center items-center">
-            <span className="text-sm text-muted-foreground">{task.id}</span>
-            <div className="relative w-6 h-6">
-              <Cloud
-                className={cn(
-                  "text-muted-foreground absolute opacity-100 inset-0 transition-all duration-500",
-                  updateStatus === "saving" && "opacity-100 animate-bounce",
-                  updateStatus === "saved" && "opacity-0"
-                )}
-              />
-              <CloudCheck
-                className={cn(
-                  "absolute inset-0 transition-all duration-500 opacity-0 scale-100 text-green-500",
-                  updateStatus === "saved" && "opacity-100"
-                )}
-              />
-            </div>
-          </div>
+        <div className="flex justify-between base-padding">
+          <TaskNavbar updateStatus={updateStatus} task={task} />
+
           <div className="flex justify-center items-center gap-4">
             <button
               data-active={isSidebarOpen}

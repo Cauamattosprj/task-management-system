@@ -19,4 +19,6 @@ export interface TaskDTO {
   assignedUsersIds: string[];
 
   commentIds: string[];
+
+  createdAt: Date;
 }

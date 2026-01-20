@@ -158,3 +158,9 @@ code {
     @apply bg-muted outline-2
   }
 }
+
+@layer utilities {
+  .base-padding {
+    @apply p-4
+  }
+}

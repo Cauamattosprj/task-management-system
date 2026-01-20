@@ -15,16 +15,16 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import TaskStatusEnum from "@shared/types/enums/task/TaskStatusEnum";
-import { getInitialsFromUserName, handleStatusIcon } from "./app-sidebar";
+import { getInitialsFromUserName, handleStatusIcon } from "../nav/app-sidebar";
 import { handlePriorityIcons } from "@/lib/handle-icons/handle-priority-icons";
 import { fetchAllTasks } from "@/lib/fetch/crud/task/get-all-tasks";
 import { useEffect, useMemo, useState } from "react";
 import type { TaskDTO } from "@/types/task.dto";
-import { Separator } from "./ui/separator";
+import { Separator } from "../ui/separator";
 import { useAuth } from "@/store/auth.store";
-import { SessionSkeleton } from "./session-skeleton";
+import { SessionSkeleton } from "../skeleton/session-skeleton";
 import { useUiState } from "@/store/ui-state.store";
-import CollapsibleTasksSectionSkeleton from "./collapsible-tasks-section-skeleton";
+import CollapsibleTasksSectionSkeleton from "../skeleton/collapsible-tasks-section-skeleton";
 import { useTasksStore } from "@/store/tasks.store";
 import { getUserById } from "@/lib/fetch/crud/user/get-user-by-id";
 import { useNavigate } from "@tanstack/react-router";
@@ -53,7 +53,7 @@ const CollapsibleTasksSection = () => {
         IN_PROGRESS: [],
         DONE: [],
         REVIEW: [],
-      }
+      },
     );
   }, [tasks]);
 
@@ -64,8 +64,8 @@ const CollapsibleTasksSection = () => {
   const taskStatuses = Object.values(TaskStatusEnum);
 
   return (
-    <div className="flex flex-col space-y-4">
-      <div className="w-full border rounded-sm [[data-state=open]_&]:rounded-b-none px-4 py-2 bg-linear-to-r from-gray-100 to-gray-50">
+    <div className="flex flex-col space-y-4 base-padding">
+      <div className="w-full border rounded-sm [[data-state=open]_&]:rounded-b-none px-4 py-2 bg-linear-to-r from-gray-200 to-gray-50">
         <div className="flex gap-4 items-center">
           <div className="flex gap-2 items-center font-semibold">
             <span className="text-sm text-foreground">
@@ -84,7 +84,7 @@ const CollapsibleTasksSection = () => {
           <Collapsible key={status} asChild>
             <li className="flex flex-col">
               <CollapsibleTrigger className="flex w-full items-center justify-between gap-4">
-                <div className="w-full border rounded-sm [[data-state=open]_&]:rounded-b-none px-4 py-2 bg-linear-to-r from-gray-100 to-gray-50">
+                <div className="w-full border rounded-sm [[data-state=open]_&]:rounded-b-none px-4 py-2 bg-linear-to-r from-gray-200 to-gray-50">
                   <div className="flex gap-4 items-center">
                     <ChevronRightIcon className="size-4 transition-transform [[data-state=open]_&]:rotate-90" />
                     <div className="flex gap-2 items-center font-semibold">
@@ -135,7 +135,7 @@ const CollapsibleTasksSection = () => {
                             {
                               day: "numeric",
                               month: "short",
-                            }
+                            },
                           )}
                         </div>
                         <div className="truncate text-left">
@@ -145,8 +145,8 @@ const CollapsibleTasksSection = () => {
                               <span>
                                 {getInitialsFromUserName(
                                   authStore.allUsers?.find(
-                                    (user) => user.id == task.createdBy
-                                  )?.username
+                                    (user) => user.id == task.createdBy,
+                                  )?.username,
                                 )}
                               </span>
                             </AvatarFallback>

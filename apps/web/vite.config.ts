@@ -22,6 +22,7 @@ export default defineConfig({
     alias: {
       "@": fileURLToPath(new URL("./src", import.meta.url)),
       "@shared": path.resolve(__dirname, "../../packages"),
+      "@components": path.resolve(__dirname, "./src/components"),
     },
   },
 });
