@@ -20,6 +20,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { useAuth } from "@/store/auth.store";
+import type { UserDTO } from "@/types/user.dto";
 
 const { allUsers } = useAuth.getState();
 
@@ -27,13 +28,15 @@ export type User = { id: string; name: string };
 
 export function AssignUsersCombobox({
   trigger,
-  setAssignedUsers,
+  onChange,
+  value = [],
 }: {
   trigger?: React.ReactNode;
-  setAssignedUsers: React.Dispatch<React.SetStateAction<User[] | undefined>>;
+  onChange: (users: UserDTO | UserDTO[]) => void;
+  value: UserDTO[];
 }) {
   const [open, setOpen] = useState(false);
-  const [selectedUsers, setSelectedUsers] = useState<User[]>([]);
+  const [selectedUsers, setSelectedUsers] = useState<UserDTO[]>(value);
 
   const isSelected = (id: string) => selectedUsers.some((u) => u.id === id);
 
@@ -47,8 +50,8 @@ export function AssignUsersCombobox({
             aria-expanded={open}
             className="w-[240px] justify-between"
           >
-            {selectedUsers.length > 0
-              ? `${selectedUsers.length} user(s) selected`
+            {value.length > 0
+              ? `${value.length} user(s) selected`
               : "Select users"}
             <ChevronsUpDownIcon className="ml-2 h-4 w-4 opacity-50" />
           </Button>
@@ -66,14 +69,12 @@ export function AssignUsersCombobox({
                     <CommandItem
                       key={user.id}
                       onSelect={() => {
-                        setSelectedUsers((prev) => {
                           const updated = isSelected(user.id)
-                            ? prev.filter((u) => u.id !== user.id)
-                            : [...prev, user];
+                            ? value.filter((u) => u.id !== user.id)
+                            : [...value, user];
 
-                          setAssignedUsers(updated);
+                          onChange(updated);
                           return updated;
-                        });
                       }}
                     >
                       <CheckIcon

@@ -1,28 +1,63 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AssignUsersCombobox, type User } from "./assign-users-combobox";
 import { TaskDeadlinePicker } from "./task-deadline-picker";
 import { Button } from "./ui/button";
 import { TaskStatusCombobox } from "./task-status-combobox";
 import { TaskPriorityCombobox } from "./task-priority-combobox";
 import { cn } from "@/lib/utils";
+import { updateTask } from "@/lib/fetch/crud/task/update-task";
+import type { TaskDTO } from "@/types/task.dto";
+import type { UserDTO } from "@/types/user.dto";
+import { getUserById } from "@/lib/fetch/crud/user/get-user-by-id";
 
-export function TaskSidebar({ open }: { open: boolean }) {
-  const [assignedUsers, setAssignedUsers] = useState<User[]>();
-  const [status, setStatus] = useState<TaskStatusEnum | undefined>();
-  const [priority, setPriority] = useState<TaskStatusPriority | undefined>();
-  const [deadline, setDeadline] = useState<TaskStatusPriority | undefined>();
+export function TaskSidebar({ open, task }: { open: boolean; task: TaskDTO }) {
+  const [assignedUsers, setAssignedUsers] = useState<UserDTO[]>([]);
+  const [status, setStatus] = useState<TaskStatusEnum | undefined>(task.status);
+  const [priority, setPriority] = useState<TaskStatusPriority | undefined>(
+    task.priority
+  );
+  const [deadline, setDeadline] = useState<TaskStatusPriority | undefined>(
+    task.deadline
+  );
+
+  useEffect(() => {
+    const users: UserDTO[] = [];
+    async function fetchUsers() {
+      if (task.assignedUsersIds) {
+        console.log('task.assignedUserIds', task.assignedUsersIds)
+        for (const userId of task.assignedUsersIds) {
+          console.log("userId consultado:", userId)
+          const user = await getUserById(userId);
+          users.push(user);
+        }
+        setAssignedUsers(users);
+      }
+    }
+
+    fetchUsers();
+  }, []);
 
   function handleStatusChange(status: TaskStatusEnum) {
     setStatus(status);
-    console.log("Novo status:", status);
+    updateTask(task.id, { status });
+  }
+
+  function handleAssignedUsers(users: UserDTO[]) {
+    console.log("Usuarios:", users.map((task) => task.id))
+    setAssignedUsers(users);
+    updateTask(task.id, {
+      assignedUsersIds: users.map((task) => task.id),
+    });
   }
 
   function handleDeadlineChange(deadline): (date: Date | undefined) => void {
-    setDeadline(deadline)
+    setDeadline(deadline);
+    updateTask(task.id, { deadline });
   }
 
   function handlePriorityChange(priority): (priority: string) => void {
     setPriority(priority);
+    updateTask(task.id, { priority });
   }
 
   return (
@@ -52,10 +87,16 @@ export function TaskSidebar({ open }: { open: boolean }) {
           </Button>
 
           <span className="text-muted-foreground">Assignees</span>
-          <AssignUsersCombobox setAssignedUsers={setAssignedUsers}  />
+          <AssignUsersCombobox
+            onChange={(users) => handleAssignedUsers(users)}
+            value={assignedUsers}
+          />
 
           <span className="text-muted-foreground">Deadline</span>
-          <TaskDeadlinePicker onChange={handleDeadlineChange} value={deadline} />
+          <TaskDeadlinePicker
+            onChange={handleDeadlineChange}
+            value={deadline}
+          />
         </div>
       </div>
     </div>

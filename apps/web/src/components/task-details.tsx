@@ -95,7 +95,7 @@ export default function TaskDetails({ task }: { task: TaskDTO }) {
             />
           </div>
         </div>
-        <TaskSidebar open={isSidebarOpen} />
+        <TaskSidebar task={task} open={isSidebarOpen} />
       </div>
     </div>
   );
