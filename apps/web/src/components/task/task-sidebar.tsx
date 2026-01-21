@@ -15,8 +15,10 @@ import { getUserById } from "@/lib/fetch/crud/user/get-user-by-id";
 import UserAvatar from "@components/users/user-avatar";
 import TaskPriorityEnum from "@enums/task/TaskPriorityEnum";
 import TaskStatusEnum from "@enums/task/TaskStatusEnum";
+import { useUiState } from "@/store/ui-state.store";
 
 export function TaskSidebar({ open, task }: { open: boolean; task: TaskDTO }) {
+  const uiState = useUiState();
   const [assignedUsers, setAssignedUsers] = useState<UserDTO[]>([]);
   const [status, setStatus] = useState<TaskPriorityEnum | undefined>(
     task.status,
@@ -42,7 +44,9 @@ export function TaskSidebar({ open, task }: { open: boolean; task: TaskDTO }) {
         setAssignedUsers(users);
       }
       const createdByUser = await getUserById(task.createdBy);
+      console.log("created by", createdByUser);
       setTaskCreator(createdByUser);
+      uiState.setIsLoading(false);
     }
 
     fetchUsers();
@@ -72,6 +76,10 @@ export function TaskSidebar({ open, task }: { open: boolean; task: TaskDTO }) {
   function handlePriorityChange(priority): (priority: string) => void {
     setPriority(priority);
     updateTask(task.id, { priority });
+  }
+
+  if (uiState.isLoading) {
+    return;
   }
 
   return (

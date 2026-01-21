@@ -23,6 +23,9 @@ export default defineConfig({
       "@": fileURLToPath(new URL("./src", import.meta.url)),
       "@shared": path.resolve(__dirname, "../../packages"),
       "@components": path.resolve(__dirname, "./src/components"),
+      "@dtos": path.resolve(__dirname, "../../packages/types/dto"),
+      "@enums": path.resolve(__dirname, "../../packages/types/enums"),
+      "@constants": path.resolve(__dirname, "../../packages/types/constants/index"),
     },
   },
 });

@@ -143,6 +143,16 @@ code {
     @apply outline outline-red-200;
   }
 
+  .icon {
+    @apply text-muted-foreground
+      p-1
+      rounded-sm
+      transition-all
+      duration-75
+      hover:bg-muted
+      hover:outline
+      hover:text-foreground;
+  }
   .btn-icon-nav {
     @apply text-muted-foreground
       p-1

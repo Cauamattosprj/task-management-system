@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import { TaskSidebar } from "@components/task/task-sidebar";
 import { SidebarProvider } from "@components/ui/sidebar";
 import { Button } from "@components/ui/button";
+import TaskActivitySection from "./task-activity-section";
 
 type UpdateStatus = "idle" | "saving" | "saved";
 
@@ -72,7 +73,7 @@ export default function TaskDetails({ task }: { task: TaskDTO }) {
   }
 
   return (
-    <div className="h-full">
+    <div className="h-full w-full">
       <div>
         <div className="flex justify-between base-padding">
           <TaskNavbar updateStatus={updateStatus} task={task} />
@@ -89,19 +90,30 @@ export default function TaskDetails({ task }: { task: TaskDTO }) {
         </div>
         <Separator />
       </div>
-      <div className="flex justify-between h-full relative">
-        <div className="flex flex-col h-full space-y-4">
-          <div className="h-full p-6 space-y-4">
+      <div className="flex justify-between h-full relative overflow-auto">
+        <div className="flex-1 h-full">
+          <div className="max-w-4xl h-full mx-auto px-6 py-6 space-y-6">
             <input
               placeholder="Task title"
-              className="text-2xl w-full focus-visible:outline-0"
+              className="
+        text-2xl w-full
+        bg-transparent
+        focus:outline-none
+        placeholder:text-muted-foreground
+      "
               value={title}
               onChange={(e) => handleTitleChange(e.target.value)}
             />
 
             <textarea
               placeholder="The description of your task..."
-              className="w-full resize-none focus-visible:outline-0"
+              className="
+                w-full h-full bg-transparent
+                text-sm leading-relaxed
+                focus:outline-none
+                placeholder:text-muted-foreground
+                resize-none
+              "
               value={description}
               onChange={(e) => handleDescriptionChange(e.target.value)}
             />
@@ -109,6 +121,7 @@ export default function TaskDetails({ task }: { task: TaskDTO }) {
         </div>
         <TaskSidebar task={task} open={isSidebarOpen} />
       </div>
+      <TaskActivitySection task={task} />
     </div>
   );
 }
