@@ -308,7 +308,7 @@ export function CreateTaskDialog() {
               control={form.control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
-                  <AssignUsersCombobox
+                  <TaskAssignUsersCombobox
                     trigger={
                       <Button
                         {...field}
