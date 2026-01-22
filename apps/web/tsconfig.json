@@ -27,6 +27,7 @@
       "@enums/*": ["../../packages/types/enums/*"],
       "@constants": ["../../packages/types/constants/index"],
       "@components/*": ["./src/components/*"],
+      "@shared/*": ["../../packages/*"]
     }
   }
 }
