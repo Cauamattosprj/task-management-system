@@ -77,11 +77,6 @@ export class AppService {
         this.userClient.send('user.get.byId', payload.sub),
       );
 
-      console.log('ALL SESSION ON DB', await this.sessionRepo.find());
-
-      console.log('session: ', session);
-      console.log('user: ', user);
-
       if (!session)
         throw new RpcException({
           message: 'Session not found',

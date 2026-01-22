@@ -1,6 +1,6 @@
-import type { CreateTaskFormData } from "@/schemas/create-task-schema";
+import type { UserRegisterDTO } from "@shared/types/dto/user/register.dto";
 
-export async function register(payload: CreateTaskFormData) {
+export async function register(payload: UserRegisterDTO) {
   const res = await fetch(
     `${import.meta.env.VITE_BACKEND_API_URL}/auth/register`,
     {
@@ -9,7 +9,7 @@ export async function register(payload: CreateTaskFormData) {
       headers: {
         "Content-Type": "application/json",
       },
-    }
+    },
   ).then(async (v) => await v.json());
 
   return res;
