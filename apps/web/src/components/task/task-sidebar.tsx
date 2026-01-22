@@ -18,7 +18,7 @@ import TaskStatusEnum from "@enums/task/TaskStatusEnum";
 import { useUiState } from "@/store/ui-state.store";
 
 export function TaskSidebar({ open, task }: { open: boolean; task: TaskDTO }) {
-  const uiState = useUiState();
+  const uiState = useUiState.getState();
   const [assignedUsers, setAssignedUsers] = useState<UserDTO[]>([]);
   const [status, setStatus] = useState<TaskPriorityEnum | undefined>(
     task.status,
@@ -83,36 +83,36 @@ export function TaskSidebar({ open, task }: { open: boolean; task: TaskDTO }) {
   }
 
   return (
-    <div className="absolute z-0 flex justify-end h-full right-0">
+    <div className="absolute md:relative z-0 flex justify-end h-full right-0">
       <div
         className={cn(
-          "z-10 border-l border-t p-4 bg-background shadow-2xl",
+          "z-10 border-l p-4 bg-background",
           open ? "" : "hidden",
         )}
       >
         <div className="grid grid-cols-[120px_1fr] gap-y-2 items-center">
-          <span className="text-muted-foreground">Created By</span>
+          <span className="text-muted-foreground text-sm">Created By</span>
           <UserAvatar username={taskCreator.username} userProfilePhoto="#" />
 
-          <span className="text-muted-foreground">Status</span>
+          <span className="text-muted-foreground text-sm">Status</span>
           <TaskStatusCombobox
             value={status}
             onChange={(status) => handleStatusChange(status)}
           />
 
-          <span className="text-muted-foreground">Priority</span>
+          <span className="text-muted-foreground text-sm">Priority</span>
           <TaskPriorityCombobox
             onChange={(priority) => handlePriorityChange(priority)}
             value={priority}
           />
 
-          <span className="text-muted-foreground">Assignees</span>
+          <span className="text-muted-foreground text-sm">Assignees</span>
           <TaskAssignUsersCombobox
             onChange={(users) => handleAssignedUsers(users)}
             value={assignedUsers}
           />
 
-          <span className="text-muted-foreground">Deadline</span>
+          <span className="text-muted-foreground text-sm">Deadline</span>
           <TaskDeadlinePicker
             onChange={handleDeadlineChange}
             value={deadline}

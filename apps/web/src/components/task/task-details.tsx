@@ -90,17 +90,17 @@ export default function TaskDetails({ task }: { task: TaskDTO }) {
         </div>
         <Separator />
       </div>
-      <div className="flex justify-between h-full relative overflow-auto">
-        <div className="flex-1 h-full">
-          <div className="max-w-4xl h-full mx-auto px-6 py-6 space-y-6">
+      <div className="flex justify-between h-full w-full relative">
+        <div className="w-full h-full">
+          <div className="max-w-6xl h-full mx-auto px-6 py-6 space-y-6">
             <input
               placeholder="Task title"
               className="
-        text-2xl w-full
-        bg-transparent
-        focus:outline-none
-        placeholder:text-muted-foreground
-      "
+                text-2xl w-full
+                bg-transparent
+                focus:outline-none
+                placeholder:text-muted-foreground
+              "
               value={title}
               onChange={(e) => handleTitleChange(e.target.value)}
             />
@@ -108,8 +108,8 @@ export default function TaskDetails({ task }: { task: TaskDTO }) {
             <textarea
               placeholder="The description of your task..."
               className="
-                w-full h-full bg-transparent
-                text-sm leading-relaxed
+                w-full h-full base-padding bg-transparent
+                text-base leading-relaxed
                 focus:outline-none
                 placeholder:text-muted-foreground
                 resize-none
@@ -121,7 +121,7 @@ export default function TaskDetails({ task }: { task: TaskDTO }) {
         </div>
         <TaskSidebar task={task} open={isSidebarOpen} />
       </div>
-      <TaskActivitySection task={task} />
+        <TaskActivitySection task={task} />
     </div>
   );
 }
