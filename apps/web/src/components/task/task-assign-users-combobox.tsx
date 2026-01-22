@@ -30,13 +30,11 @@ export function TaskAssignUsersCombobox({
   value = [],
 }: {
   trigger?: React.ReactNode;
-  onChange: (users: UserDTO | UserDTO[]) => void;
+  onChange: (users: UserDTO[]) => void;
   value: UserDTO[];
 }) {
   const [open, setOpen] = useState(false);
-  const [selectedUsers, setSelectedUsers] = useState<UserDTO[]>(value);
-
-  const isSelected = (id: string) => selectedUsers.some((u) => u.id === id);
+  const isSelected = (id: string) => value.some((u) => u.id === id);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -67,18 +65,19 @@ export function TaskAssignUsersCombobox({
                     <CommandItem
                       key={user.id}
                       onSelect={() => {
-                          const updated = isSelected(user.id)
-                            ? value.filter((u) => u.id !== user.id)
-                            : [...value, user];
+                        console.log("Select chamado");
+                        const updated = isSelected(user.id)
+                          ? value.filter((u) => u.id !== user.id)
+                          : [...value, user];
 
-                          onChange(updated);
-                          return updated;
+                        onChange(updated);
+                        return updated;
                       }}
                     >
                       <CheckIcon
                         className={cn(
                           "mr-2 h-4 w-4",
-                          isSelected(user.id) ? "opacity-100" : "opacity-0"
+                          isSelected(user.id) ? "opacity-100" : "opacity-0",
                         )}
                       />
                       {user.username}
